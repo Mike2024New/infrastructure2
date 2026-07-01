@@ -4,7 +4,7 @@ from pathlib import Path
 from typing import Generator
 import threading
 from infrastructure_message_bus.schemas import Message
-from infrastructure_message_bus.rotate_file import rotate_file_by_size
+from infrastructure_path_utils.rotate_file import rotate_file_by_size  # импорт из infrastructure2 (пересек. модули)
 from dataclasses import dataclass
 from rich import print
 import atexit

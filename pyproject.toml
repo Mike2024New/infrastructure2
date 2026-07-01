@@ -8,6 +8,7 @@ dependencies = [
     "infrastructure-git-client",
     "infrastructure-message-bus",
     "infrastructure-path-utils",
+    "infrastructure-settings-manager",
 ]
 
 
@@ -17,6 +18,7 @@ members = [
 ]
 
 [tool.uv.sources]
-infrastructure-git-client = { workspace = true } # быстрый гит клиент
-infrastructure-message-bus = { workspace = true } # шина сообщений
-infrastructure-path-utils = { workspace = true } # обработчик файлов и путей
+infrastructure-git-client = { workspace = true } # быстрый гит клиент (автоматизация git add ., git commit ...)
+infrastructure-message-bus = { workspace = true } # шина сообщений (логирование, общение приложений)
+infrastructure-path-utils = { workspace = true } # функции для работы с файлами и путями
+infrastructure-settings-manager = { workspace = true } # менеджеры настроек
