@@ -1,0 +1,18 @@
+[project]
+name = "infrastructure2"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    'git-client', # этот пакет используется внутри проекта (обязательно установленный)
+]
+
+
+[tool.uv.workspace]
+members = [
+    "packages/*",
+]
+
+[tool.uv.sources]
+git-client = { workspace = true } # быстрый гит клиент
