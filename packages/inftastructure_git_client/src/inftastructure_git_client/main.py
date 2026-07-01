@@ -11,12 +11,11 @@ __all__ = ['GitClient']
 
 class GitClient:
 
-    def __init__(self, root_dir: Path, git_url: str, branch: str = 'main', venv_dir_name: str = '.venv'):
+    def __init__(self, root_dir: Path, git_url: str, branch: str = 'main'):
         """
-
-        :param git_url:
-        :param branch:
-        :param venv_dir_name:
+        :param root_dir: корневая папка где лежат .venv, .gitignore, pyproject.toml
+        :param git_url: ссылка на репозиторий, например: 'git@github.com:Mike2024New/infrastructure2.git'
+        :param branch: ветка репозитория, по умолчанию main
         """
         self._root_dir = root_dir
         self._git_url = git_url

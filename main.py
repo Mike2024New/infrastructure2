@@ -1,4 +1,4 @@
-from git_client import GitClient
+from inftastructure_git_client import GitClient
 from pathlib import Path
 
 root_dir = Path.cwd()

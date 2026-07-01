@@ -5,9 +5,9 @@ description = "Add your description here"
 readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [
-    "git-client",
-    "message-bus",
-    "path-utils",
+    "inftastructure-git-client",
+    "inftastructure-message-bus",
+    "inftastructure-path-utils",
 ]
 
 
@@ -17,6 +17,6 @@ members = [
 ]
 
 [tool.uv.sources]
-git-client = { workspace = true } # быстрый гит клиент
-message-bus = { workspace = true } # шина сообщений
-path-utils = { workspace = true } # обработчик файлов и путей
+inftastructure-git-client = { workspace = true } # быстрый гит клиент
+inftastructure-message-bus = { workspace = true } # шина сообщений
+inftastructure-path-utils = { workspace = true } # обработчик файлов и путей

@@ -1,5 +1,5 @@
 [project]
-name = "path-utils"
+name = "inftastructure-path-utils"
 version = "0.1.0"
 description = "Add your description here"
 readme = "README.md"

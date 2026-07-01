@@ -1,5 +1,5 @@
-from message_bus.main import MessageBus, MessagePrintSettings, FileLogSettings
-from message_bus.schemas import Message
+from inftastructure_message_bus.main import MessageBus, MessagePrintSettings, FileLogSettings
+from inftastructure_message_bus.schemas import Message
 from typing import Literal, Any
 from uuid import uuid4
 from pathlib import Path
