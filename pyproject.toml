@@ -5,7 +5,9 @@ description = "Add your description here"
 readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [
-    'git-client', # этот пакет используется внутри проекта (обязательно установленный)
+    "git-client",
+    "message-bus",
+    "path-utils",
 ]
 
 
@@ -16,3 +18,5 @@ members = [
 
 [tool.uv.sources]
 git-client = { workspace = true } # быстрый гит клиент
+message-bus = { workspace = true } # шина сообщений
+path-utils = { workspace = true } # обработчик файлов и путей
