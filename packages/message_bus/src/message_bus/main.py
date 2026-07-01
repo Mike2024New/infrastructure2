@@ -4,7 +4,7 @@ from pathlib import Path
 from typing import Generator
 import threading
 from message_bus.schemas import Message
-from message_bus.helper import rotate_file_by_size
+from message_bus.rotate_file import rotate_file_by_size
 from dataclasses import dataclass
 from rich import print
 import atexit
