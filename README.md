@@ -20,6 +20,12 @@
 
 <div id="change-history">
 <details>
+<summary>02.07.2026 - v0.4.0 - 695652</summary>
+
+- infrastructure_git_client==0.5.0
+
+</details>
+<details>
 <summary>02.07.2026 - v0.3.0 - e5b3a7</summary>
 
 - infrastructure_git_client==0.4.0

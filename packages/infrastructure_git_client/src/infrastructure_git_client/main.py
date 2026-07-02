@@ -91,14 +91,7 @@ class GitClient:
                 f'Не удалось получить репозиторий `{self._git_url}`.\n'
                 f'stdout: {res.stdout}, stderr: {res.stderr}')
 
-    def commit(self, commit_message_auto: bool = False, commit_message: str | None = None) -> None:
-        """
-        отправить изменения на репозиторий
-        :param commit_message_auto: генерировать автоматическое сообщение для коммита (uuid)
-        :param commit_message: задать текстовое сообщение на прямую (подавляется галочкой commit_message_auto если она передана)
-        :return:
-        """
-        # проверка что есть что обновлять
+    def is_project_modified(self) -> bool:
         print(f'Проверка того что есть что обновлять.')
         cmd = ['git', 'status', '--porcelain']
         res = subprocess.run(cmd, cwd=self._root_dir, capture_output=True)
@@ -108,6 +101,18 @@ class GitClient:
                 f'stdout: {res.stdout}, stderr: {res.stderr}'
             )
         if not res.stdout.strip():
+            return False
+        return True
+
+    def commit(self, commit_message_auto: bool = False, commit_message: str | None = None) -> None:
+        """
+        отправить изменения на репозиторий
+        :param commit_message_auto: генерировать автоматическое сообщение для коммита (uuid)
+        :param commit_message: задать текстовое сообщение на прямую (подавляется галочкой commit_message_auto если она передана)
+        :return:
+        """
+        # проверка что есть что обновлять
+        if not self.is_project_modified():
             print('Нет изменений, git не отправлен.')
             return
 

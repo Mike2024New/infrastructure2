@@ -24,7 +24,7 @@ def commit(increment: bool = True) -> None:
 
     # получение списка всех пакетов файлы в которых менялись
     changed_packages = git_client.get_changes_packages(marker='src')
-    if not changed_packages:
+    if not changed_packages and not git_client.is_project_modified():
         print(f'Изменений нет, не чего коммитить.')
         return
 
@@ -72,6 +72,7 @@ def commit(increment: bool = True) -> None:
 
     git_client.commit(commit_message=meta_commit_hash)
     print(f'Коммит успешно отправлен.')
+    # print(123)
 
 
 if __name__ == '__main__':
