@@ -88,3 +88,12 @@ def _decorator(func, enable: bool):
         return res
 
     return wrapper
+
+
+if __name__ == '__main__':
+    # пример подавления лога
+    shut_up_log = ShutUpLogs()
+    shut_up_log.enable()  # тишина началась
+    print('не напечатается')
+    shut_up_log.disable()  # можно снова говорить
+    print('напечатается')
