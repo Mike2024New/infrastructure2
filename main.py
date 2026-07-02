@@ -72,7 +72,6 @@ def commit(increment: bool = True) -> None:
 
     git_client.commit(commit_message=meta_commit_hash)
     print(f'Коммит успешно отправлен.')
-    print(123)
 
 
 if __name__ == '__main__':
