@@ -173,13 +173,14 @@ def build(parameters: BuildParameters) -> None | Path:
         print('[green]Создание симлинка[/green]')
         if not resources_dir.exists():
             print(f'[yellow]Симлинк не создан так как в корне отсутствует папка resources.[/yellow]')
-        # создание симлинка на папку с ресурсами
-        create_symlink(
-            source_directory=root_dir / 'resources',
-            # если не один файл то симлинк вложенный
-            target_directory=distributive_path / parameters.name if not parameters.one_file else distributive_path,
+        else:
+            # создание симлинка на папку с ресурсами
+            create_symlink(
+                source_directory=root_dir / 'resources',
+                # если не один файл то симлинк вложенный
+                target_directory=distributive_path / parameters.name if not parameters.one_file else distributive_path,
 
-        )
+            )
 
     # копирование заданных файлов
     if parameters.copy_dirs:
