@@ -1,0 +1,12 @@
+[project]
+name = "infrastructure-cli-utils"
+version = "0.1.0"
+description = "💻 Шаблоны для быстрого развертывания CLI интерфейса."
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "typer>=0.26.8",
+    "infrastructure-builder @ git+https://github.com/Mike2024New/infrastructure2.git@main#subdirectory=packages/infrastructure_builder",
+    "infrastructure-path-utils @ git+https://github.com/Mike2024New/infrastructure2.git@main#subdirectory=packages/infrastructure_path_utils",
+    "infrastructure-git-client @ git+https://github.com/Mike2024New/infrastructure2.git@main#subdirectory=packages/infrastructure_git_client",
+]

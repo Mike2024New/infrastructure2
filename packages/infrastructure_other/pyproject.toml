@@ -1,0 +1,7 @@
+[project]
+name = "infrastructure-other"
+version = "0.1.0"
+description = "📗 Утилиты не вошедшие ни в одну из категорий (например подавитель логов c++ библиотек)."
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = []

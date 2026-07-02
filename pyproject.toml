@@ -16,6 +16,9 @@ dependencies = [
     "infrastructure-path-utils",
     "infrastructure-settings-manager",
     "infrastructure-builder",
+    "infrastructure-cli-utils",
+    "infrastructure-http-clients",
+    "infrastructure-other",
 ]
 
 
@@ -30,3 +33,6 @@ infrastructure-message-bus = { workspace = true } # шина сообщений 
 infrastructure-path-utils = { workspace = true } # функции для работы с файлами и путями
 infrastructure-settings-manager = { workspace = true } # менеджеры настроек
 infrastructure-builder = { workspace = true } # сборщик приложений .exe (bin)
+infrastructure-cli-utils = { workspace = true } # набор для консольных приложений
+infrastructure-http-clients = { workspace = true } # web запросы, например hugginface скачивание моделей
+infrastructure-other = { workspace = true } # прочие функции не вошедшие ни в одну из категорий
