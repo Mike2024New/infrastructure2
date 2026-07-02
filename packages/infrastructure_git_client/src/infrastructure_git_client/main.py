@@ -176,14 +176,13 @@ class GitClient:
         :param marker: папка границы пакета
         :return: список корневых папок пакетов
         """
-        cmd = ['git', 'status']
+        cmd = ['git', 'status', '--porcelain']
         answer = subprocess.run(cmd, text=True, capture_output=True)
-        print(answer)
         if answer.returncode != 0:
             raise RuntimeError(f'Ошибка при парсинге изменений проекта')
         change_packages = set()
         for row in answer.stdout.splitlines():
-            if 'modified:' in row:
+            if 'M' in row:
                 file = Path(row.split(' ')[-1])
                 if not file.exists():
                     continue

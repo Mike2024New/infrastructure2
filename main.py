@@ -24,8 +24,6 @@ def commit(increment: bool = True) -> None:
 
     # получение списка всех пакетов файлы в которых менялись
     changed_packages = git_client.get_changes_packages(marker='src')
-    cd = git_client.get_changes_packages(marker='infrastructure2')
-    print(cd)
     if not changed_packages:
         print(f'Изменений нет, не чего коммитить.')
         return
