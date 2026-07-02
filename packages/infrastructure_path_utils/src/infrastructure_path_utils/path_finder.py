@@ -18,9 +18,9 @@ def get_root_dir_path(venv_dir_name: str = '.venv') -> Path:
     # для .exe / bin
     exe_mode = getattr(sys, 'frozen', False)
     if exe_mode:
-        return Path(sys.executable)
+        return Path(sys.executable).parent
 
-    executable = Path(sys.executable).parent
+    executable = Path(sys.executable)
     for parent in executable.parents:
         if parent.name == venv_dir_name:
             return parent.parent
