@@ -1,7 +1,7 @@
 [project]
 name = "infrastructure-settings-manager"
 version = "0.1.0"
-description = "Add your description here"
+description = "⚙️ Менеджеры настроек: работа с .env (pydantic-settings), .json (с автосохранением) и pyproject.toml (чтение/инкремент версии)."
 readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [

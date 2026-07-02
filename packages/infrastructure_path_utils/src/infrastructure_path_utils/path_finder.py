@@ -7,12 +7,20 @@ __all__ = ['get_root_dir_path']
 def get_root_dir_path(venv_dir_name: str = '.venv') -> Path:
     """
     Определение корневой директории проекта.
-    Работает по признаку .venv в корне проекта.
+    Работает по 2 принципам:
+    Если вызов идет из .exe (bin), то выдаст текущую директорию
+    Если же из кода то:
+    .venv в корне проекта.
     Если эта папка называется по другому, то прописать прямой путь в shared/env
     :return: Path -> корневой путь к директории проекта
     """
 
-    executable = Path(sys.executable)
+    # для .exe / bin
+    exe_mode = getattr(sys, 'frozen', False)
+    if exe_mode:
+        return Path(sys.executable)
+
+    executable = Path(sys.executable).parent
     for parent in executable.parents:
         if parent.name == venv_dir_name:
             return parent.parent

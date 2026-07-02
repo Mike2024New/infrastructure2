@@ -1,7 +1,9 @@
 [project]
 name = "infrastructure-git-client"
 version = "0.1.0"
-description = "Add your description here"
+description = "📦 Git-клиент для автоматизации: инициализация, коммиты, пуш, инкремент версии, обновление истории в README. Всё одной командой."
 readme = "README.md"
 requires-python = ">=3.12"
-dependencies = []
+dependencies = [
+    "infrastructure-settings-manager @ git+https://github.com/Mike2024New/infrastructure2.git@main#subdirectory=packages/infrastructure_settings_manager",
+]

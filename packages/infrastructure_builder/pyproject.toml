@@ -1,0 +1,10 @@
+[project]
+name = "infrastructure-builder"
+version = "0.1.0"
+description = "🏗️ Сборщик исполняемых файлов (PyInstaller) для Windows (.exe) и Linux (.bin). Гибкие настройки, симлинки, копирование ресурсов."
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "pyinstaller>=6.21.0",
+    "infrastructure-path-utils @ git+https://github.com/Mike2024New/infrastructure2.git@main#subdirectory=packages/infrastructure_path_utils",
+]

@@ -10,8 +10,8 @@ class FlatJsonManager:
     { 'key1' : 'val1', 'key2' : 'val2', }
     """
 
-    def __init__(self, prompt_file_path: Path):
-        self._prompt_file_path = prompt_file_path
+    def __init__(self, json_file_path: Path):
+        self._json_file_path = json_file_path
         self._lock = Lock()
         self._init()  # для создания файла сразу
 
@@ -47,23 +47,23 @@ class FlatJsonManager:
 
     def _save(self, data: dict) -> None:
         """Запись файла json"""
-        with open(self._prompt_file_path, mode='w', encoding='utf-16') as f:
+        with open(self._json_file_path, mode='w', encoding='utf-16') as f:
             f.write(json.dumps(data, ensure_ascii=False, indent=2))
 
     def _init(self) -> None:
         """Создание пустого файла (если ещё нет)"""
-        if not self._prompt_file_path.exists():
+        if not self._json_file_path.exists():
             self._save(data={})
 
     def _read(self) -> dict[str, Any]:
         """Чтение файла json, если файла нет то создание нового"""
-        with open(self._prompt_file_path, mode='r', encoding='utf-16') as f:
+        with open(self._json_file_path, mode='r', encoding='utf-16') as f:
             data = json.loads(f.read())
         return data
 
 
 if __name__ == '__main__':
-    pm = FlatJsonManager(prompt_file_path=Path('prompts.json'))
+    pm = FlatJsonManager(json_file_path=Path('prompts.json'))
     pm.add(key='prompt1', value='Привет! Давай просто пообщаемся.')
     pm.add(key='prompt2', value='Привет! Давай просто пообщаемся.')
     pm.add(key='prompt3', value='Привет! Давай просто пообщаемся.')

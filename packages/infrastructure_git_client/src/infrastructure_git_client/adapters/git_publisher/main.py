@@ -1,9 +1,9 @@
 import uuid
 from pathlib import Path
 from infrastructure_git_client import GitClient
-from infrastructure.settings_manager.settings_manager_toml import TomlManager
-from infrastructure.settings_manager.settings_manager_env import load_settings_env, SettingsEnvModel
-from infrastructure.git_client.adapters.git_publisher.history_updater import update_module_history
+from infrastructure_settings_manager.settings_manager_toml import TomlManager
+from infrastructure_settings_manager.settings_manager_env import load_settings_env, SettingsEnvModel
+from infrastructure_git_client.adapters.git_publisher.history_updater import update_module_history
 
 __all__ = ['adapter_git_push_update']
 
@@ -68,6 +68,7 @@ def adapter_git_push_update(
 
     # отправка на гит.
     git_client = GitClient(
+        root_dir=root_dir,
         git_url=git_url,
         branch=git_branch,
     )
