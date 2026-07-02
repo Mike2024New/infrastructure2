@@ -44,15 +44,26 @@
 
 > Это полная установка включает в себя все пакеты из раздела [комоненты](#компоненты), инструкцию по установке
 > конкретного пакета см. в разделе, но общий синтаксис ссылки на пакет из pyproject.toml такой:
-> `<package-name> @git+https://github.com/Mike2024New/infrastructure2.git@main#subdirectory=packages/<package-path>`.
 
+```text
+<package-name> @git+https://github.com/Mike2024New/infrastructure2.git@main#subdirectory=packages/<package-path>
+```
 
+Если планируется использовать все пакеты то:
+
+Для toml:
+
+```text
+"infrastructure2 @ git+https://github.com/Mike2024New/infrastructure2.git"
+```
+
+Для прямой uv установки:
 
 ```bash
 uv add git+https://github.com/Mike2024New/infrastructure2.git
 ```
 
-Или:
+Для pip установки:
 
 ```bash
 # установка в режиме editable пакета.
