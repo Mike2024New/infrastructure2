@@ -1,6 +1,6 @@
 [project]
 name = "infrastructure-builder"
-version = "0.2.0"
+version = "0.1.0"
 description = "🏗️ Сборщик исполняемых файлов (PyInstaller) для Windows (.exe) и Linux (.bin). Гибкие настройки, симлинки, копирование ресурсов."
 readme = "README.md"
 requires-python = ">=3.12"

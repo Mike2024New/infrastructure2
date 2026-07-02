@@ -75,4 +75,4 @@ def commit(increment: bool = True) -> None:
 
 
 if __name__ == '__main__':
-    commit(increment=True)
+    commit(increment=False)

@@ -1,6 +1,8 @@
-## GitClient - простой гит клиент для автоматической отправки коммитов
+# GitClient - простой гит клиент для автоматической отправки коммитов.
 
-> Важно! Git уже должен быть настроен (соединение клиента и git по ключу ssh), после установки git на чистую ОС, нужно
-> выполнить ssh соединение и подтвердить его из ОС. А также разрешить для git папки на других дисках если это нужно.
+### url для установки пакета (прописать в pyproject.toml целевого проекта)
 
----
+```text
+"infrastructure-git-client @
+git+https://github.com/Mike2024New/infrastructure2.git@main#subdirectory=packages/infrastructure_git_client"
+```
