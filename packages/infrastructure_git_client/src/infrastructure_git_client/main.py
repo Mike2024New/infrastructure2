@@ -196,3 +196,7 @@ class GitClient:
                     file = get_root_dir_path() / file
                     change_packages.add(file)
         return change_packages
+
+
+if __name__ == '__main__':
+    pass

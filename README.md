@@ -19,6 +19,12 @@
 ## 📝 История изменений
 
 <div id="change-history">
+<details>
+<summary>03.07.2026 - v0.7.0 - 6e4927</summary>
+
+- infrastructure_git_client==0.6.0
+
+</details>
 </div>
 
 ## 📜Лицензии
