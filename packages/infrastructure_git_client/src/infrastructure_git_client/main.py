@@ -1,6 +1,7 @@
 from pathlib import Path
 import subprocess
 import uuid
+from infrastructure_path_utils import get_root_dir_path, get_parent_by_marker
 
 __all__ = ['GitClient']
 
@@ -54,7 +55,6 @@ class GitClient:
         cmd = ['git', 'branch']
         res = subprocess.run(cmd, cwd=self._root_dir, text=True, capture_output=True)
         branches = res.stdout.replace('*', '').strip().split()
-        print(branches)
         if not branches:
             # ветки ещё не существует, так как это 1 коммит
             return
@@ -168,3 +168,26 @@ class GitClient:
             'url_uv': self._git_url.replace('git@github.com:', 'git+https://github.com/'),
             'branch': self._branch,
         }
+
+    @staticmethod
+    def get_changes_packages(marker: str = 'src') -> set[Path]:
+        """
+        Поиск измененных файлов до граничного условия, полезно для отслеживания измененных пакетов репозитория
+        :param marker: папка границы пакета
+        :return: список корневых папок пакетов
+        """
+        cmd = ['git', 'status']
+        answer = subprocess.run(cmd, text=True, capture_output=True)
+        if answer.returncode != 0:
+            raise RuntimeError(f'Ошибка при парсинге изменений проекта')
+        change_packages = set()
+        for row in answer.stdout.splitlines():
+            if 'modified:' in row:
+                file = Path(row.split(' ')[-1])
+                if not file.exists():
+                    continue
+                file = get_parent_by_marker(path=file, marker=marker)
+                if file is not None:
+                    file = get_root_dir_path() / file
+                    change_packages.add(file)
+        return change_packages

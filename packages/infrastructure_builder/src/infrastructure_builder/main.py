@@ -80,7 +80,7 @@ def build(parameters: BuildParameters) -> None | Path:
         parameters = BuildParameters( ... настройки приложения ... )
     )
     """
-    print('[green]Сборка приложения[/green]')
+    print('[green]Сборка приложения [/green]')
 
     # проверка входного пути
     if parameters.entry_point_path.parts[-1] != '.py':

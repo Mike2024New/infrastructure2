@@ -4,12 +4,6 @@ version = "0.1.0"
 description = "🧩 Монорепозиторий переиспользуемых утилит для Python-проектов. Централизованное управление, модульная установка."
 readme = "README.md"
 requires-python = ">=3.12"
-
-# во внешних проектах установка подмодулей по принципу:
-# "<название-модуля> @ git+https://github.com/Mike2024New/infrastructure2.git@main#subdirectory=packages/<название_модуля>"
-# например:
-# "infrastructure-path-utils @ git+https://github.com/Mike2024New/infrastructure2.git@main#subdirectory=packages/infrastructure_path_utils"
-
 dependencies = [
     "infrastructure-git-client",
     "infrastructure-message-bus",
@@ -21,18 +15,31 @@ dependencies = [
     "infrastructure-other",
 ]
 
-
 [tool.uv.workspace]
 members = [
-    "packages/*", # директория с пакетами
+    "packages/*",
 ]
 
-[tool.uv.sources]
-infrastructure-git-client = { workspace = true } # быстрый гит клиент (автоматизация git add ., git commit ...)
-infrastructure-message-bus = { workspace = true } # шина сообщений (логирование, общение приложений)
-infrastructure-path-utils = { workspace = true } # функции для работы с файлами и путями
-infrastructure-settings-manager = { workspace = true } # менеджеры настроек
-infrastructure-builder = { workspace = true } # сборщик приложений .exe (bin)
-infrastructure-cli-utils = { workspace = true } # набор для консольных приложений
-infrastructure-http-clients = { workspace = true } # web запросы, например hugginface скачивание моделей
-infrastructure-other = { workspace = true } # прочие функции не вошедшие ни в одну из категорий
+[tool.uv.sources.infrastructure-git-client]
+workspace = true
+
+[tool.uv.sources.infrastructure-message-bus]
+workspace = true
+
+[tool.uv.sources.infrastructure-path-utils]
+workspace = true
+
+[tool.uv.sources.infrastructure-settings-manager]
+workspace = true
+
+[tool.uv.sources.infrastructure-builder]
+workspace = true
+
+[tool.uv.sources.infrastructure-cli-utils]
+workspace = true
+
+[tool.uv.sources.infrastructure-http-clients]
+workspace = true
+
+[tool.uv.sources.infrastructure-other]
+workspace = true
