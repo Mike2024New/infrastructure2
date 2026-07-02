@@ -20,27 +20,9 @@
 
 <div id="change-history">
 <details>
-<summary>02.07.2026 - v0.1.0 - 6115ec</summary>
+<summary>02.07.2026 - v0.2.0 - 6d8fbf</summary>
 
-- infrastructure_builder==0.2.0
-- infrastructure_path_utils==0.2.0
-- infrastructure_git_client==0.2.0
-
-</details>
-<details>
-<summary>@02.07.2026 - v0.1.0 - 9a6238</summary>
-
-- infrastructure_builder==0.1.0
-- infrastructure_git_client==0.1.0
-- infrastructure_path_utils==0.1.0
-
-</details>
-<details>
-<summary>@02.07.2026 - v0.1.0 - c7dee7</summary>
-
-- infrastructure_path_utils==0.1.0
-- infrastructure_git_client==0.1.0
-- infrastructure_builder==0.1.0
+- infrastructure_git_client==0.3.0
 
 </details>
 </div>

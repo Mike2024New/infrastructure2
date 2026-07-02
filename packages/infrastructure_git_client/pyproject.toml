@@ -1,6 +1,6 @@
 [project]
 name = "infrastructure-git-client"
-version = "0.2.0"
+version = "0.3.0"
 description = "📦 Git-клиент для автоматизации: инициализация, коммиты, пуш, инкремент версии, обновление истории в README. Всё одной командой."
 readme = "README.md"
 requires-python = ">=3.12"

@@ -178,6 +178,7 @@ class GitClient:
         """
         cmd = ['git', 'status']
         answer = subprocess.run(cmd, text=True, capture_output=True)
+        print(answer)
         if answer.returncode != 0:
             raise RuntimeError(f'Ошибка при парсинге изменений проекта')
         change_packages = set()

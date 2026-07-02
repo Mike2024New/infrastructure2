@@ -23,8 +23,11 @@ def commit(increment: bool = True) -> None:
     )
 
     # получение списка всех пакетов файлы в которых менялись
-    changed = git_client.get_changes_packages(marker='src')
-    if not changed:
+    changed_packages = git_client.get_changes_packages(marker='src')
+    cd = git_client.get_changes_packages(marker='infrastructure2')
+    print(cd)
+    if not changed_packages:
+        print(f'Изменений нет, не чего коммитить.')
         return
 
     # получение основной метаинформации о проекте
@@ -34,40 +37,43 @@ def commit(increment: bool = True) -> None:
     meta_readme_md = root_dir / 'README.md'
 
     if increment:
-        meta_toml_manager.inc_version()
+        meta_toml_manager.inc_version(minor_in=True)
 
-    change_packages = []
+    change_packages_versions = []
 
-    for pack in changed:
+    for pack in changed_packages:
         pack_root_path = pack.parent
         toml_manager = TomlManager(pack_root_path)
         if increment:
             toml_manager.inc_version(minor_in=True)
-        change_packages.append(f"{pack_root_path.name}=={toml_manager.get_version()}")
+        change_packages_versions.append(f"{pack_root_path.name}=={toml_manager.get_version()}")
 
-    history_details = (
-        f"<details>\n"
-        f"<summary>{meta_today} - v{meta_toml_manager.get_version()} - {meta_commit_hash}</summary>\n\n"
-        f"- {'\n- '.join(change_packages)}\n"
-        f"\n</details>"
-    )
+    # если есть изменения то создавать блок со списком новшеств
+    if change_packages_versions:
+        history_details = (
+            f"<details>\n"
+            f"<summary>{meta_today} - v{meta_toml_manager.get_version()} - {meta_commit_hash}</summary>\n\n"
+            f"- {'\n- '.join(change_packages_versions)}\n"
+            f"\n</details>"
+        )
 
-    # чтение главного README.md
+        # чтение главного README.md
 
-    with open(file=meta_readme_md, mode='r', encoding='utf-8') as f:
-        content = f.read().splitlines()
-        insert_indx = 0
-        for i, row in enumerate(content):
-            if row == '<div id="change-history">':
-                insert_indx = i + 1
-        content.insert(insert_indx, history_details)
-        content = '\n'.join(content)
+        with open(file=meta_readme_md, mode='r', encoding='utf-8') as f:
+            content = f.read().splitlines()
+            insert_indx = 0
+            for i, row in enumerate(content):
+                if row == '<div id="change-history">':
+                    insert_indx = i + 1
+            content.insert(insert_indx, history_details)
+            content = '\n'.join(content)
 
-    # запись изменений в главный README.md
-    with open(file=meta_readme_md, mode='w', encoding='utf-8') as f:
-        f.write(content)
+        # запись изменений в главный README.md
+        with open(file=meta_readme_md, mode='w', encoding='utf-8') as f:
+            f.write(content)
 
     git_client.commit(commit_message=meta_commit_hash)
+    print(f'Коммит успешно отправлен.')
 
 
 if __name__ == '__main__':
