@@ -166,6 +166,8 @@ def build(parameters: BuildParameters) -> None | Path:
             f'returncode: {result.returncode}\n'
             f'stdout: {result.stdout}\n'
             f'stderr: {result.stderr}\n'
+            f'На linux возможна ошибка в случае отстутствия утилиты `binutils`\n'
+            f'Лечится командой: sudo apt update && sudo apt install binutils'
         )
 
     resources_dir = root_dir / 'resources'
