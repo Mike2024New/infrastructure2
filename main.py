@@ -4,16 +4,29 @@ from infrastructure_settings_manager import TomlManager
 from infrastructure_path_utils import get_root_dir_path
 from pathlib import Path
 from datetime import datetime
+import subprocess
 
 
-def commit(increment: bool = True) -> None:
+def run_tests():
+    res = subprocess.run(['pytest', '-v', '-s'])
+    if res.returncode != 0:
+        raise RuntimeError(f'Тесты не пройдены.')
+
+
+def commit(increment: bool = True, tests: bool = True) -> None:
     """
     Отправка обновления на git, с изменением версий дочерних пакетов (те которые были изменены) и
     фиксацией этих изменений в истории главного readme.md.
     Обновленные пакеты вычисляются через git status.
+    :param tests: запуск тестов перед комитом
     :param increment: Если версии не нужно обновлять (например поменялось просто описание)
     :return: None
     """
+
+    # запуск тестов
+    if tests:
+        run_tests()
+
     root_dir = get_root_dir_path()
 
     git_client = GitClient(
@@ -75,4 +88,5 @@ def commit(increment: bool = True) -> None:
 
 
 if __name__ == '__main__':
-    commit(increment=False)
+    # run_tests()
+    commit(increment=True, tests=True)

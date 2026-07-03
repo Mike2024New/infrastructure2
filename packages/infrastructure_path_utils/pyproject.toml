@@ -1,6 +1,6 @@
 [project]
 name = "infrastructure-path-utils"
-version = "0.1.0"
+version = "0.2.0"
 description = "🔧 Базовые утилиты для работы с файловой системой: поиск корня проекта, ротация файлов и многое другое."
 readme = "README.md"
 requires-python = ">=3.12"

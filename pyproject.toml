@@ -1,6 +1,6 @@
 [project]
 name = "infrastructure2"
-version = "0.1.0"
+version = "0.2.0"
 description = "🧩 Монорепозиторий переиспользуемых утилит для Python-проектов. Централизованное управление, модульная установка."
 readme = "README.md"
 requires-python = ">=3.12"
@@ -13,6 +13,7 @@ dependencies = [
     "infrastructure-cli-utils",
     "infrastructure-http-clients",
     "infrastructure-other",
+    "pytest>=9.1.1",
 ]
 
 [tool.uv.workspace]
@@ -43,3 +44,19 @@ workspace = true
 
 [tool.uv.sources.infrastructure-other]
 workspace = true
+
+[tool.pytest.ini_options]
+testpaths = [
+    "packages",
+]
+norecursedirs = [
+    "resources",
+    ".venv",
+    "releases",
+    "src",
+    ".pytest_cache",
+]
+pythonpath = [
+    ".",
+]
+markers = []

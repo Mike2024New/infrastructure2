@@ -4,7 +4,7 @@ from pathlib import Path
 from typing import Generator
 import threading
 from infrastructure_message_bus.schemas import Message
-from infrastructure_path_utils.rotate_file import rotate_file_by_size  # импорт из infrastructure2 (пересек. модули)
+from infrastructure_path_utils.rotate_file import rotate_file_by_size_decorator  # импорт из infrastructure2 (пересек. модули)
 from dataclasses import dataclass
 from rich import print
 import atexit
@@ -116,7 +116,7 @@ class MessageBus:
             self._json_bufer_msg = []
 
         # подключение ротатора файлов
-        @rotate_file_by_size(
+        @rotate_file_by_size_decorator(
             max_size_mb=self._file_log_settings.max_size_mb,
             max_files=self._file_log_settings.max_files,
             path_key_name='file_path',  # определение ключа который отвечает за путь в операции записи
