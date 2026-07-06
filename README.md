@@ -36,7 +36,10 @@
 5. [HttpClients](packages/infrastructure_http_clients/README.md) - http клиент, для выполнения запросов, например
    загрузка файлов.
 6. [cli_utils](packages/infrastructure_cli_utils/README.md) - cli утилиты (typer, консольный интерфейс и так далее).
-7. [Other](packages/infrastructure_other/README.md) - прочие утилиты, которые не вошли ни в одну из категорий.
+7. [settings-manager](packages/infrastructure_settings_manager/README.md) - менеджер настроек (pydantic модели
+   конфигураций,json, .env).
+8. [server](packages/infrastructure_server/README.md) - запуск сервера Fastapi.
+9. [Other](packages/infrastructure_other/README.md) - прочие утилиты, которые не вошли ни в одну из категорий.
 
 ---
 
