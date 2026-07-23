@@ -18,11 +18,10 @@ def server_factory(component, routers_list: list[APIRouter] | None = None, messa
     @system_routers.get('/status/')
     def component_status():
         """
-        Проверка состояния сервера. Проверка запущен ли компонент сервера (component_is_run).
+        Проверка состояния сервера.
         """
         return {
-            'msg': 'Основная информация о сервере.',
-            'component_is_run': component.is_running,
+            'msg': 'Сервер запущен.',
             'timestamp': datetime.now().isoformat(),
         }
 
@@ -39,7 +38,8 @@ def server_factory(component, routers_list: list[APIRouter] | None = None, messa
         # остановить сервер
         server.stop()
         return {
-            'msg': 'сервер остановлен.'
+            'msg': 'сервер остановлен.',
+            'timestamp': datetime.now().isoformat(),
         }
 
     # добавление роутеров приложения (роутеры отличаются по тегам)
