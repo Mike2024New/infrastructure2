@@ -40,6 +40,7 @@
    конфигураций,json, .env).
 8. [server](packages/infrastructure_server/README.md) - запуск сервера Fastapi.
 9. [Other](packages/infrastructure_other/README.md) - прочие утилиты, которые не вошли ни в одну из категорий.
+10. [process-utils](packages/infrastructure_process_utils/README.md) - вспомогательные утилиты по управлению процессами.
 
 ---
 
