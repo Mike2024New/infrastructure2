@@ -1,12 +1,13 @@
 import typer, subprocess
 from rich import print
 from pathlib import Path
-from typing import Callable, Any
+from typing import Callable, Any, Literal
 from infrastructure_builder import BuildParameters
 from infrastructure_builder import build as builder_func
 from infrastructure_git_client import adapter_git_push_update
 from infrastructure_path_utils.open_folder import open_folder
 from infrastructure_other import parse_value_and_type_from_string
+from infrastructure_server import Server
 from dataclasses import dataclass
 
 """
@@ -16,13 +17,14 @@ from dataclasses import dataclass
 
 @dataclass
 class CliSettings:
-    enable_run_command: bool = True
+    enable_run_command: bool = False
+    enable_run_server: bool = False
     enable_folder_command: bool = True
-    enable_build_command: bool = True
-    enable_git_push: bool = True
-    enable_run_test: bool = True
-    enable_settings_show: bool = True
-    enable_settings_edit: bool = True
+    enable_build_command: bool = False
+    enable_git_push: bool = False
+    enable_run_test: bool = False
+    enable_settings_show: bool = False
+    enable_settings_edit: bool = False
 
 
 _exe_mode: bool = False
@@ -79,40 +81,79 @@ def create_cli_app(name: str) -> typer.Typer:
     return app
 
 
+def register_run_server(app: typer.Typer, server: Server):
+    @app.command()
+    def run(
+            ctx: typer.Context,
+            port: int = typer.Option(8000, '--port', '-p'),
+            log_level: Literal['debug', 'info', 'warning', 'error'] = typer.Option('warning', '--log-level', '-ll'),
+    ):
+        """
+        Запуск сервера с полезной нагрузкой.
+        Сервер имеет базовые эндпоинты:
+            [green]/health/[/green]      - проверка состояния сервера
+            [green]/parameters/[/green]  - параметры текущего компонента
+            [green]/pid/[/green]         - pid сервера, для принудительной остановки в случае отключения терминала
+            [green]/shutdown/[/green]    - штатное завершение работы сервера
+        Опции:
+            -p (--port)         - порт на котором будет запущен сервер (по умолчанию 8000)
+            -ll (--log-level)   - минимальный уровень логирования ('debug', 'info', 'warning', 'error')
+        Примеры команд:
+            [yellow]run-server[/yellow]            - с параметрами по умолчанию
+            [yellow]run-server -p 8000[/yellow]    - с указанием порта
+            [yellow]run-server -ll info[/yellow]   - с минимальным уровнем логирования info
+        """
+        cli_command_execute(
+            lambda: server.start(port=port, log_level=log_level),
+            command_name=ctx.command.name,
+        )
+        return
+
+
 def register_settings_show(app: typer.Typer, settings):
     @app.command()
-    def settings_show():
+    def settings_show(ctx: typer.Context):
         """
         Просмотр текущих настроек
         Примеры команд:
             [yellow]settings-show[/yellow]
         """
-        print(settings)
+        cli_command_execute(
+            callback=lambda: print(settings),
+            command_name=ctx.command.name,
+        )
 
 
 def register_settings_edit(app: typer.Typer, settings, settings_manager):
     @app.command()
-    def settings_edit(params: list[str] = typer.Argument(None)):
+    def settings_edit(ctx: typer.Context, params: list[str] = typer.Argument(None)):
         """
         Обновление настроек (работает для плоской архитектуры ключ-значение)
         Парсит значения из строк (например 512 будет определено как int, что корректно для моделей pydantic)
         Примеры команд:
             [yellow]settings-edit samplerate=32000 blocksize=512 name=test[/yellow]
         """
-        if params is None:
-            print(f'[red]Нужно передать хотябы одну пару параметров.[/red]')
-            return
-        for par in params:
-            if '=' not in par or par.count('=') > 1:
-                raise RuntimeError(f'Не корректно введены параметры {params}')
-            key, val = par.split('=')
-            val = parse_value_and_type_from_string(val)[0]
-            print(key, val)
 
-            if hasattr(settings, key):
-                setattr(settings, key, val)
+        def edit_parameters():
+            if params is None:
+                print(f'[red]Нужно передать хотябы одну пару параметров.[/red]')
+                return
+            for par in params:
+                if '=' not in par or par.count('=') > 1:
+                    raise RuntimeError(f'Не корректно введены параметры {params}')
+                key, val = par.split('=')
+                val = parse_value_and_type_from_string(val)[0]
+                print(key, val)
 
-        settings_manager.apply_new_settings(settings=settings)
+                if hasattr(settings, key):
+                    setattr(settings, key, val)
+
+            settings_manager.apply_new_settings(settings=settings)
+
+        cli_command_execute(
+            callback=lambda: edit_parameters(),
+            command_name=ctx.command.name,
+        )
 
 
 def register_run_command(app: typer.Typer):
@@ -248,8 +289,9 @@ def get_cli_app(
         exe_mode: bool = False,
         message_bus=None,
         cli_settings: CliSettings | None = None,
-        settings: Any = None,  # не знаю универсальный тип...
-        settings_manager: Any = None,  # не знаю универсальный тип...
+        settings: Any = None,
+        settings_manager: Any = None,
+        server: Server | None = None
 ) -> typer.Typer:
     """
     Получение экземпляра typer для консоли приложения, с предопределенными базовыми методами.
@@ -261,6 +303,7 @@ def get_cli_app(
     :param message_bus: Опционально: шина сообщений (см. подробнее `message_bus_factory_v2` в модуле infrastructure.message_bus)
     :param settings_manager: (объект get_settings_manager из пакета infrastructure_settings_manager)
     :param settings: (объект settings из пакета сформированный из модели schemas проекта)
+    :param server: (объект Server из пакета infrastructure_server (имеет метод server.start(port, log-level)))
     :return: экземпляр приложения. Который запускается app()
     Пример использования:
 
@@ -310,6 +353,14 @@ def get_cli_app(
                 f'Не переданы объекты settings, settings_manager, для формирования cli команды settings-edit'
             )
         register_settings_edit(app=app, settings=settings, settings_manager=settings_manager)
+
+    # команда подключения сервера
+    if cli_settings.enable_run_server:
+        if server is None:
+            raise RuntimeError(
+                f'Для формирования команды run-server необходимо передать объект server.'
+            )
+        register_run_server(app=app, server=server)
 
     if not exe_mode:  # команды которые будут доступны только в режиме разработчика
         if cli_settings.enable_run_test:

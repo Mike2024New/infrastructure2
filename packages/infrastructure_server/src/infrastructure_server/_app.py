@@ -3,6 +3,8 @@ from fastapi import FastAPI, APIRouter, status
 from infrastructure_server._server import Server
 from datetime import datetime
 
+__all__ = ['server_factory', 'Server']
+
 
 def server_factory(component, routers_list: list[APIRouter] | None = None, message_bus=None) -> Server:
     """

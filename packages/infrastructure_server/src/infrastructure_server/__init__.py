@@ -1,7 +1,8 @@
-from infrastructure_server._app import server_factory
+from infrastructure_server._app import server_factory, Server
 
 __all__ = [
     'server_factory',  # фабрика для генерации приложений
+    'Server',  # объект сервер для типизации
 ]
 
 """
