@@ -6,6 +6,7 @@ from infrastructure_builder import BuildParameters
 from infrastructure_builder import build as builder_func
 from infrastructure_git_client import adapter_git_push_update
 from infrastructure_path_utils.open_folder import open_folder
+from infrastructure_other import parse_value_and_type_from_string
 from dataclasses import dataclass
 
 """
@@ -20,6 +21,8 @@ class CliSettings:
     enable_build_command: bool = True
     enable_git_push: bool = True
     enable_run_test: bool = True
+    enable_settings_show: bool = True
+    enable_settings_edit: bool = True
 
 
 _exe_mode: bool = False
@@ -73,6 +76,42 @@ def create_cli_app(name: str) -> typer.Typer:
         """CLI интерфейс"""
 
     return app
+
+
+def register_settings_show(app: typer.Typer, settings):
+    @app.command()
+    def settings_show():
+        """
+        Просмотр текущих настроек
+        Примеры команд:
+            [yellow]settings-show[/yellow]
+        """
+        print(settings)
+
+
+def register_settings_edit(app: typer.Typer, settings, settings_manager):
+    @app.command()
+    def settings_edit(params: list[str] = typer.Argument(None)):
+        """
+        Обновление настроек (работает для плоской архитектуры ключ-значение)
+        Парсит значения из строк (например 512 будет определено как int, что корректно для моделей pydantic)
+        Примеры команд:
+            [yellow]settings-edit samplerate=32000 blocksize=512 name=test[/yellow]
+        """
+        if params is None:
+            print(f'[red]Нужно передать хотябы одну пару параметров.[/red]')
+            return
+        for par in params:
+            if '=' not in par or par.count('=') > 1:
+                raise RuntimeError(f'Не корректно введены параметры {params}')
+            key, val = par.split('=')
+            val = parse_value_and_type_from_string(val)[0]
+            print(key, val)
+
+            if hasattr(settings, key):
+                setattr(settings, key, val)
+
+        settings_manager.apply_new_settings(settings=settings)
 
 
 def register_run_command(app: typer.Typer):
@@ -208,6 +247,8 @@ def get_cli_app(
         exe_mode: bool = False,
         message_bus=None,
         cli_settings: CliSettings | None = None,
+        settings: Any = None,  # не знаю универсальный тип...
+        settings_manager: Any = None,  # не знаю универсальный тип...
 ) -> typer.Typer:
     """
     Получение экземпляра typer для консоли приложения, с предопределенными базовыми методами.
@@ -217,6 +258,8 @@ def get_cli_app(
     :param build_settings: настройки для сборщика (передавать не обязательно, возьмутся опциональные параметры)
     :param exe_mode: режим exe (приложение) или разработка?
     :param message_bus: Опционально: шина сообщений (см. подробнее `message_bus_factory_v2` в модуле infrastructure.message_bus)
+    :param settings_manager: (объект get_settings_manager из пакета infrastructure_settings_manager)
+    :param settings: (объект settings из пакета сформированный из модели schemas проекта)
     :return: экземпляр приложения. Который запускается app()
     Пример использования:
 
@@ -247,8 +290,25 @@ def get_cli_app(
     if cli_settings.enable_run_command:
         register_run_command(app=app)  # переопределяемый в дочках метод
 
+    # октрывать корневую директорию проекта
     if cli_settings.enable_folder_command:
         register_folder_command(app=app, root_dir=root_dir)
+
+    # команда просмотра настроек
+    if cli_settings.enable_settings_show:
+        if settings is None:
+            raise RuntimeError(
+                f'Не передан объект settings для формирования cli команды settings-show'
+            )
+        register_settings_show(app=app, settings=settings)
+
+    # команда редактирования настроек
+    if cli_settings.enable_settings_edit:
+        if settings is None or settings_manager is None:
+            raise RuntimeError(
+                f'Не переданы объекты settings, settings_manager, для формирования cli команды settings-edit'
+            )
+        register_settings_edit(app=app, settings=settings, settings_manager=settings_manager)
 
     if not exe_mode:  # команды которые будут доступны только в режиме разработчика
         if cli_settings.enable_run_test:
