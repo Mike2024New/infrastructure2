@@ -10,4 +10,5 @@ dependencies = [
     "infrastructure-path-utils @ git+https://github.com/Mike2024New/infrastructure2.git@main#subdirectory=packages/infrastructure_path_utils",
     "infrastructure-git-client @ git+https://github.com/Mike2024New/infrastructure2.git@main#subdirectory=packages/infrastructure_git_client",
     "infrastructure-other @ git+https://github.com/Mike2024New/infrastructure2.git@main#subdirectory=packages/infrastructure_other",
+    "infrastructure-server @ git+https://github.com/Mike2024New/infrastructure2.git@main#subdirectory=packages/infrastructure_server",
 ]
