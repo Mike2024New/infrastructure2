@@ -1,6 +1,6 @@
 from infrastructure_http_clients.downloader import Downloader
 from infrastructure_http_clients.adapters import adpater_download_from_hf
-from infrastructure_http_clients.utils.server_probe import ServerProbe
+from infrastructure_http_clients.utils import ServerProbe
 
 __all__ = [
     'Downloader',  # загрузчик
