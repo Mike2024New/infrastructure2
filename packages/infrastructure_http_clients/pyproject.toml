@@ -1,7 +1,7 @@
 [project]
 name = "infrastructure-http-clients"
-version = "0.1.0"
-description = "🔗 Http помощник. Загрузка файлов. Шаблоны для загрузки моделей с hugging_face."
+version = "0.2.0"
+description = "🔗 Http помощник. Загрузка файлов. Шаблоны для загрузки моделей с hugging_face. Опрос сервера (для разработки)."
 readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [
