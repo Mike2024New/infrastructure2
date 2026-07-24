@@ -15,7 +15,7 @@ class Server:
     В реализации backend (или в cli) нужно вызывать метод server.stop()
     """
 
-    def __init__(self, application: FastAPI, message_bus = None):
+    def __init__(self, application: FastAPI, message_bus=None):
         self._application = application
         self.message_bus = message_bus
         self._server = None
@@ -30,6 +30,7 @@ class Server:
                     subcomponent=SUBCOMPONENT,
                     level='start',
                     event='server start',
+                    message='server start',
                     data={'host': host, 'port': port, 'log_level': log_level}
                 )
 
@@ -39,6 +40,7 @@ class Server:
                     subcomponent=SUBCOMPONENT,
                     level='stop',
                     event='server stop',
+                    message='server stop',
                 )
         except Exception as err:
             if self.message_bus is not None:
