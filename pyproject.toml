@@ -1,6 +1,6 @@
 [project]
 name = "infrastructure2"
-version = "0.11.0"
+version = "0.12.0"
 description = "🧩 Монорепозиторий переиспользуемых утилит для Python-проектов. Централизованное управление, модульная установка."
 readme = "README.md"
 requires-python = ">=3.12"

@@ -9,7 +9,12 @@ from pathlib import Path
 
 class PidManager:
     def __init__(self, pid_file_path: Path):
+        """
+        :param pid_file_path: путь к файлу. Например `projects/pid.txt`
+        """
         self._pid_file_path = pid_file_path
+        if not self._pid_file_path.exists():
+            self._pid_file_path.write_text('', encoding='utf8')  # создание файла если его ещё нет
         self._lock = threading.Lock()
 
     @staticmethod
