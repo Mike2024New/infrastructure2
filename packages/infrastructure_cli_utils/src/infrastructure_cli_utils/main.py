@@ -29,8 +29,9 @@ _exe_mode: bool = False
 _message_bus: Any | None = None
 
 __all__ = [
-    'get_cli_app',
-    'cli_command_execute',
+    'get_cli_app',  # объект набора базовых переиспользуемых команд
+    'cli_command_execute',  # выполнение команды с выводом ошибки (если она произошла)
+    'CliSettings',  # включение отключение эндпоинтов
 ]
 
 
