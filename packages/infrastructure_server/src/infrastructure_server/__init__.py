@@ -4,6 +4,8 @@ __all__ = [
     'server_factory',  # фабрика для генерации приложений
 ]
 
+"""
+# Пример компонента (полезного приложения которое запускается внутри сервера):
 
 class Component:
     def __init__(self):
@@ -14,3 +16,4 @@ class Component:
 
     def stop(self):
         self.is_running = False
+"""

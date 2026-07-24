@@ -1,3 +1,4 @@
+import os
 from fastapi import FastAPI, APIRouter, status
 from infrastructure_server._server import Server
 from datetime import datetime
@@ -41,6 +42,11 @@ def server_factory(component, routers_list: list[APIRouter] | None = None, messa
             'msg': 'сервер остановлен.',
             'timestamp': datetime.now().isoformat(),
         }
+
+    @system_routers.get('/pid/')
+    def pid():
+        """Получение процесс id текущего сервера (для случаев когда приложения отдельные .exe)"""
+        return {'pid': os.getpid(), 'msg': 'process id запущенного сервера.'}
 
     # добавление роутеров приложения (роутеры отличаются по тегам)
     for router in routers_list:
