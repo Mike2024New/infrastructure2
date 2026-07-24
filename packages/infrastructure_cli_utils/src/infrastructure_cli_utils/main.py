@@ -83,7 +83,7 @@ def create_cli_app(name: str) -> typer.Typer:
 
 def register_run_server(app: typer.Typer, server: Server):
     @app.command()
-    def run(
+    def run_server(
             ctx: typer.Context,
             port: int = typer.Option(8000, '--port', '-p'),
             log_level: Literal['debug', 'info', 'warning', 'error'] = typer.Option('warning', '--log-level', '-ll'),
