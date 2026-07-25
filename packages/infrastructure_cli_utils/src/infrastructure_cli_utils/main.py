@@ -143,7 +143,6 @@ def register_settings_edit(app: typer.Typer, settings, settings_manager):
                     raise RuntimeError(f'Не корректно введены параметры {params}')
                 key, val = par.split('=')
                 val = parse_value_and_type_from_string(val)[0]
-                print(key, val)
 
                 if hasattr(settings, key):
                     setattr(settings, key, val)
