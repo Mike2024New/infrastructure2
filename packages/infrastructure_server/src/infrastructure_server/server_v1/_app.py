@@ -1,6 +1,6 @@
 import os
 from fastapi import FastAPI, APIRouter, status
-from infrastructure_server._server import Server
+from infrastructure_server.server_v1 import Server
 from datetime import datetime
 
 __all__ = ['server_factory', 'Server']
