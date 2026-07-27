@@ -17,14 +17,14 @@ from typing import Protocol
 
 class ServerV1(Protocol):
     # класс для типизации сервера
-    def start(self, host: str, port: int, log_level: Literal['debug', 'info', 'warning', 'error']): ...
+    def start(self, port: int, log_level: Literal['debug', 'info', 'warning', 'error']): ...
 
     def stop(self): ...
 
 
 class ServerV2(Protocol):
     # класс для типизации сервера
-    def start(self, port: int, log_level: Literal['debug', 'info', 'warning', 'error']): ...
+    def start(self, host: str, port: int, log_level: Literal['debug', 'info', 'warning', 'error']): ...
 
     def stop(self): ...
 
@@ -199,6 +199,7 @@ def register_build_command(app: typer.Typer, build_settings: BuildParameters) ->
             one_file: bool = typer.Option(False, '-oe', '--onefile', flag_value=True),
             entry_path: Path | None = typer.Option(None, '-ep', '--entry_path'),
             create_resources_symlink: bool = typer.Option(False, '-sl', '--sym-link', flag_value=True),
+            copy_to_target: Path = typer.Option(None, '-ct', '--copy-to-target'),
     ):
         """
         [red]~dev [/red]Создание сборки, приложения .exe или .bin [yellow]build[/yellow]
@@ -207,7 +208,8 @@ def register_build_command(app: typer.Typer, build_settings: BuildParameters) ->
             -n (--name) - название приложения (если не переопределить то взьмется по умолчанию из settings)
             -oe (--onefile) - сборка одним файлом (по умолчанию выключена)
             -sl (--sym-link) - создать симлинк на папку с ресурсами
-            -ep (--entry_path) - стартовый скрипт (по умолчанию этот же скрипт cli_utils.py)
+            -ep (--entry-path) - стартовый скрипт (по умолчанию этот же скрипт cli_utils.py)
+            -ct (--copy-to-target) - Путь куда копировать сборку из dist в заданную папку (например на рабочий стол)
         Примеры команд:
             [yellow]build[/yellow]
             [yellow]build -n my-app[/yellow] - указать название приложения
@@ -223,6 +225,7 @@ def register_build_command(app: typer.Typer, build_settings: BuildParameters) ->
         build_settings.one_file = one_file
         build_settings.create_resources_symlink = create_resources_symlink
         build_settings.entry_point_path = entry_path if entry_path is not None else build_settings.entry_point_path
+        build_settings.copy_from_dist_to_target_dir = copy_to_target if copy_to_target is not None else build_settings.copy_from_dist_to_target_dir
 
         cli_command_execute(
             callback=lambda: builder_func(build_settings),
