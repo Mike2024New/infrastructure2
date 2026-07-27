@@ -1,4 +1,4 @@
-from infrastructure_cli_utils.main import get_cli_app, cli_command_execute, CliSettings
+from infrastructure_cli_utils.cli_v1 import get_cli_app, cli_command_execute, CliSettings
 
 __all__ = [
     'get_cli_app',  # объект набора базовых переиспользуемых команд

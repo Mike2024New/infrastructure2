@@ -7,12 +7,26 @@ from infrastructure_builder import build as builder_func
 from infrastructure_git_client import adapter_git_push_update
 from infrastructure_path_utils.open_folder import open_folder
 from infrastructure_other import parse_value_and_type_from_string
-from infrastructure_server import Server
 from dataclasses import dataclass
+from typing import Protocol
 
 """
 Шаблон для микросервисов
 """
+
+
+class ServerV1(Protocol):
+    # класс для типизации сервера
+    def start(self, host: str, port: int, log_level: Literal['debug', 'info', 'warning', 'error']): ...
+
+    def stop(self): ...
+
+
+class ServerV2(Protocol):
+    # класс для типизации сервера
+    def start(self, port: int, log_level: Literal['debug', 'info', 'warning', 'error']): ...
+
+    def stop(self): ...
 
 
 @dataclass
@@ -81,7 +95,7 @@ def create_cli_app(name: str) -> typer.Typer:
     return app
 
 
-def register_run_server(app: typer.Typer, server: Server):
+def register_run_server(app: typer.Typer, server: ServerV1 | ServerV2):
     @app.command()
     def run_server(
             ctx: typer.Context,
@@ -290,7 +304,7 @@ def get_cli_app(
         cli_settings: CliSettings | None = None,
         settings: Any = None,
         settings_manager: Any = None,
-        server: Server | None = None
+        server: ServerV1 | ServerV2 | None = None
 ) -> typer.Typer:
     """
     Получение экземпляра typer для консоли приложения, с предопределенными базовыми методами.
