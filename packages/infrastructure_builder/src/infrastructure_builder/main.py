@@ -49,6 +49,7 @@ class BuildParameters:
         create_resources_symlink=True, # создать симлинк на папку с ресурсами? Если она есть в проекте.
         open_folder=True # открыть папку с дистрибутивом после создания дистрибутива
         copy_dirs=[(./add_dir, 'dir_name'), (./add_dir2, 'dir_name2'),] # копируемые директории
+        copy_from_dist_to_target_dir = Path('./project') # копирование собранного дистрибутива в конкретную папку
     )
     """
     name: str = 'APP'
@@ -66,6 +67,7 @@ class BuildParameters:
     venv_dir_name: str = '.venv'
     open_folder: bool = False  # открыть папку после создания дистрибутива
     copy_dirs: list[tuple[Path, str]] = field(default_factory=list)  # список файлов для копирования
+    copy_from_dist_to_target_dir: Path | None = None  # копировать собранный дистрибутив в указ папку (если не None)
 
 
 def build(parameters: BuildParameters) -> None | Path:
@@ -194,6 +196,11 @@ def build(parameters: BuildParameters) -> None | Path:
     if parameters.open_folder:
         print('[green]открытие папки[/green]')
         open_folder(path=distributive_path)
+
+    # Скопировать сборку в целевую директорию (полезно для систем оркестрации, доставка без ручного копирования)
+    if parameters.copy_from_dist_to_target_dir is not None:
+        print(f'[green]Копирование сборки в целевую папку[/green]')
+        shutil.copytree(distributive_path, parameters.copy_from_dist_to_target_dir, dirs_exist_ok=True)
 
     print(f'[green]Приложение собрано. {distributive_path.parent}[/green]')
     return distributive_path
