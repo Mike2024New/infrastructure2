@@ -3,6 +3,8 @@ import os
 from fastapi import FastAPI, APIRouter
 from typing import Literal
 
+temp_x = 100
+
 
 # ================= Клас обёртка над uvicorn ===========================
 class ServerV2:

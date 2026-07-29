@@ -80,6 +80,12 @@ pip install -e "git+https://github.com/Mike2024New/infrastructure2.git#egg=infra
 
 <div id="change-history">
 <details>
+<summary>29.07.2026 - v0.31.0 - 212a73</summary>
+
+- infrastructure_server==0.12.0
+
+</details>
+<details>
 <summary>29.07.2026 - v0.30.0 - a785eb</summary>
 
 - infrastructure_server==0.11.0
