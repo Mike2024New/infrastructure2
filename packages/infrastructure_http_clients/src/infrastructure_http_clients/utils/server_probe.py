@@ -28,7 +28,6 @@ class ServerProbe:
             try:
                 res = requests.get(url, timeout=1)
                 if res.status_code == expected_status:
-                    print(f'✅ Сервер `{url}` запущен')
                     return None
             except requests.exceptions.ConnectionError:
                 pass
@@ -52,7 +51,6 @@ class ServerProbe:
             try:
                 requests.get(url, timeout=1)
             except (requests.exceptions.ConnectionError, requests.exceptions.RequestException):
-                print(f'✅ Сервер `{url}` остановлен.')
                 return
             sleep(interval)
         raise TimeoutError(f'Сервер `{url}` не остановился за {timeout} сек.')
