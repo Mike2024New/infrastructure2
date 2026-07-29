@@ -95,12 +95,17 @@ def create_cli_app(name: str) -> typer.Typer:
     return app
 
 
-def register_run_server(app: typer.Typer, server: ServerV1 | ServerV2):
+def register_run_server(
+        app: typer.Typer,
+        server: ServerV1 | ServerV2,
+        trace_id_callback: Callable[[str], ...] | None = None,
+):
     @app.command()
     def run_server(
             ctx: typer.Context,
             port: int = typer.Option(8000, '--port', '-p'),
             log_level: Literal['debug', 'info', 'warning', 'error'] = typer.Option('warning', '--log-level', '-ll'),
+            trace_id: str = typer.Option(None, '-ti', '--trace-id'),
     ):
         """
         Запуск сервера с полезной нагрузкой.
@@ -112,11 +117,22 @@ def register_run_server(app: typer.Typer, server: ServerV1 | ServerV2):
         Опции:
             -p (--port)         - порт на котором будет запущен сервер (по умолчанию 8000)
             -ll (--log-level)   - минимальный уровень логирования ('debug', 'info', 'warning', 'error')
+            -ti (--trace-id)    - id сквозной трассировки - для отслеживания цепочки логов нескольких компонентов
         Примеры команд:
             [yellow]run-server[/yellow]            - с параметрами по умолчанию
             [yellow]run-server -p 8000[/yellow]    - с указанием порта
             [yellow]run-server -ll info[/yellow]   - с минимальным уровнем логирования info
+            [yellow]run-server -ti #000[/yellow]   - с передачей id цепочки операций
         """
+        # в этой точке можно добавить ключ трассировки цепочки операций (для разных компонентов)
+        if trace_id is not None and trace_id_callback is not None:
+            cli_command_execute(
+                lambda: trace_id_callback(trace_id),
+                command_name=ctx.command.name,
+            )
+        elif trace_id is not None and trace_id_callback is None:
+            print('[yellow]trace_id не обработан, для неё нужно передать trace_id_callback, в cli_settings[/yellow]')
+
         cli_command_execute(
             lambda: server.start(port=port, log_level=log_level),
             command_name=ctx.command.name,
@@ -307,10 +323,12 @@ def get_cli_app(
         cli_settings: CliSettings | None = None,
         settings: Any = None,
         settings_manager: Any = None,
-        server: ServerV1 | ServerV2 | None = None
+        server: ServerV1 | ServerV2 | None = None,
+        trace_id_callback: Callable[[str], ...] | None = None,
 ) -> typer.Typer:
     """
     Получение экземпляра typer для консоли приложения, с предопределенными базовыми методами.
+    :param trace_id_callback: функция обработчик trace_id, например модификация id в шине сообщений (модуль infrastructure2/message_bus)
     :param cli_settings: настройки какие команды будут отображаться в cli.py по умолчанию все
     :param name: название приложения
     :param root_dir: корневая папка проекта
@@ -376,7 +394,7 @@ def get_cli_app(
             raise RuntimeError(
                 f'Для формирования команды run-server необходимо передать объект server.'
             )
-        register_run_server(app=app, server=server)
+        register_run_server(app=app, server=server, trace_id_callback=trace_id_callback)
 
     if not exe_mode:  # команды которые будут доступны только в режиме разработчика
         if cli_settings.enable_run_test:
