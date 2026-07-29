@@ -109,6 +109,10 @@ def message_bus_factory(
         def disable_print():
             message_bus.print_message = False
 
+        @staticmethod
+        def set_trace_id(trace_id: str):
+            message_bus._trace_id = trace_id
+
     return message_bus_add, MessageBusSettings
 
 
@@ -126,13 +130,17 @@ if __name__ == '__main__':
             ignore_levels_invers=False,
         ),
         # подключение настроек логирования
-        # file_log_json_path=Path('logs/log.jsonl'),
-        # file_log_settings=FileLogSettings(
-        #     max_size_mb=10,
-        #     max_files=5,
-        #     rotation_disable=False,
-        # )
+        file_log_json_path=Path('logs/log.jsonl'),
+        file_log_settings=FileLogSettings(
+            max_size_mb=10,
+            max_files=5,
+            rotation_disable=False,
+        )
     )
+
+    # Внешний id цепочки компонентов устанавливается, уже постфактум (это удобно для api)
+    message_bus_settings.set_trace_id(trace_id='new_req')
+
     message_bus_settings.disable_print()  # подавление сообщений
     # 2. Печатать
     message_buss(

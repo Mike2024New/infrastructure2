@@ -4,7 +4,7 @@ from pathlib import Path
 from typing import Generator
 import threading
 from infrastructure_message_bus.schemas import Message
-from infrastructure_path_utils.rotate_file import rotate_file_by_size_decorator  # импорт из infrastructure2 (пересек. модули)
+from infrastructure_path_utils.rotate_file import rotate_file_by_size_decorator
 from dataclasses import dataclass
 from rich import print
 import atexit
@@ -70,6 +70,7 @@ class MessageBus:
         :param print_message: печатать ли в консоль сообщения в реал-тайме? (не потребляет сообщения из шины сообщений)
         :param print_settings: настройки печати в реальном времени (сырая строка на печать?, печатать ли дату?)
         """
+        self._trace_id = None
         self._messages = deque(maxlen=max_size)
         self._lock = threading.Lock()  # защита от гонки состояний
         self._message_new_event = threading.Event()  # наблюдатель за появлением сообщений
@@ -90,6 +91,7 @@ class MessageBus:
         :return:
         """
         with self._lock:
+            message.trace_id = self._trace_id
             self._messages.append(message)
             self._message_new_event.set()  # сигнал о том что сообщение получено
             self._json_bufer_msg.append(message)
@@ -146,7 +148,8 @@ class MessageBus:
         :return: получил сообещние сразу его отдал
         """
         while True:
-            self._message_new_event.wait(timeout=timeout)  # возбуждаться на каждый сигнал полученного сообщения
+            # возбуждаться на каждый сигнал полученного сообщения
+            self._message_new_event.wait(timeout=timeout)  # noqa
             with self._lock:
                 while self._messages:
                     yield self._messages.popleft()
