@@ -1,6 +1,6 @@
 [project]
 name = "infrastructure-message-bus"
-version = "0.4.0"
+version = "0.5.0"
 description = "📨 Шина сообщений с цветным логированием в консоль (rich) и ротируемыми JSON-логами. Поддерживает уровни, фильтры, потоковую передачу."
 readme = "README.md"
 requires-python = ">=3.12"
