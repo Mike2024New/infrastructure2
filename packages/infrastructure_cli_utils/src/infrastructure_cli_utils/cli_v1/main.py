@@ -291,7 +291,7 @@ def register_sync(app: typer.Typer, root_dir: Path):
     @app.command()
     def sync(ctx: typer.Context, ignore_deps: str | None = typer.Option(None, '-id', '--ignore-deps')):
         """
-        Обновить пакеты из pyproject.toml, корректно обновляет вложенные репозитории с git.
+        [red]~dev [/red]Обновить пакеты из pyproject.toml, корректно обновляет вложенные репозитории с git.
         Опции:
             -id (--ignore-deps) - игнорировать пакеты, перадать аргумены в кавычках
         Примеры команд:
