@@ -202,5 +202,7 @@ def build(parameters: BuildParameters) -> None | Path:
         print(f'[green]Копирование сборки в целевую папку[/green]')
         shutil.copytree(distributive_path, parameters.copy_from_dist_to_target_dir, dirs_exist_ok=True)
 
-    print(f'[green]Приложение собрано. {distributive_path.parent}[/green]')
+    print(
+        f'[green]Приложение [bold]{parameters.name}[/bold] собрано.\nПуть к дистрибутиву: {distributive_path}[/green]'
+    )
     return distributive_path
