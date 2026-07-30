@@ -125,7 +125,7 @@ def sync(
         if res.returncode != 0:
             print(f'Не удалось обновить пакеты, ошибка: {res.stderr}')
     else:
-        print(f'[green]Обновление требуется.[/green]')
+        print(f'[green]Обновление не требуется.[/green]')
 
     # функция расширитель
     if callback is not None and callable(callback):
