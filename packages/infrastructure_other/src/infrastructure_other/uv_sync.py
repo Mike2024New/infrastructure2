@@ -120,7 +120,7 @@ def sync(
     # Выкачивание всех зависимостей
     if url_updates_list:
         cmd = ['uv', 'add'] + url_updates_list
-        res = subprocess.run(cmd, capture_output=True)
+        res = subprocess.run(cmd)
         if res.returncode != 0:
             print(f'Не удалось обновить пакеты, ошибка: {res.stderr}')
 
