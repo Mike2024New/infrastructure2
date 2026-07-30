@@ -4,6 +4,10 @@ from rich import print
 
 __all__ = ['sync']
 
+"""
+Решение проблемы с обновлением вложенных репозиториев git прописанных в pyproject.toml
+"""
+
 
 def git_url_parse(git_url: str) -> tuple[str, str] | tuple[None, None]:
     """
