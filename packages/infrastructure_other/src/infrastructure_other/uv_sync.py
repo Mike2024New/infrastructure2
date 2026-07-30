@@ -67,6 +67,7 @@ def sync(
     :param callback: функция расширитель с дополнительной логикой (применена до uv sync)
     :return: None
     """
+    print(f'[green]Обновление пакетов - это может занять некоторое время.[/green]')
     ignore_deps = ignore_deps or []
     res = subprocess.run(['uv', '--version'], capture_output=True)
     if res.returncode != 0:
@@ -108,8 +109,7 @@ def sync(
                     continue
 
             dep = dep.split('@')[0] if 'git' in dep else dep
-
-            print(f'[green]Обновление пакета {dep}[/green]')
+            print(f'[green]{dep} - будет обновлен.[/green]')
             update_url = (
                 f'{dep} @ '
                 f'git+https://github.com/{author}/{repo}.git'
@@ -119,10 +119,13 @@ def sync(
 
     # Выкачивание всех зависимостей
     if url_updates_list:
+        print(f'[green]Обновление пакетов...[/green]')
         cmd = ['uv', 'add'] + url_updates_list
         res = subprocess.run(cmd)
         if res.returncode != 0:
             print(f'Не удалось обновить пакеты, ошибка: {res.stderr}')
+    else:
+        print(f'[green]Обновление требуется.[/green]')
 
     # функция расширитель
     if callback is not None and callable(callback):
