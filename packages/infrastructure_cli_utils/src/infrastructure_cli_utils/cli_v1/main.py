@@ -41,6 +41,7 @@ class CliSettings:
     enable_settings_show: bool = False
     enable_settings_edit: bool = False
     enable_register_sync: bool = False
+    enable_log_viewer: bool = False
 
 
 _exe_mode: bool = False
@@ -199,6 +200,40 @@ def register_run_command(app: typer.Typer):
         )
 
 
+class LogViewer(Protocol):
+    def view(self, trace_id: str | None, request_id: str | None, component: str | None): ...
+
+
+def register_log(app: typer.Typer, log_viewer: LogViewer) -> None:
+    @app.command()
+    def log(
+            ctx: typer.Context,
+            trace_id: str | None = typer.Option(None, '-ti', '-trace-id'),
+            request_id: str | None = typer.Option(None, '-ri', '-request-id'),
+            component: str | None = typer.Option(None, '-ct', '-component'),
+    ):
+        """
+        Просмотр логов компонента, рекурсивно ищет все логи проекта относительно корневой папки.
+        Опции:
+            -ti (--trace_id)     - поиск по trace_id - отслеживание цепочки логов нескольких компонентов
+            -ri (--request_id)   - поиск по request_id - поиск цепочки операций в рамках одного компонента
+            -ct (--component)    - поиск по названию компонента
+        Примеры команд:
+            [yellow]log[/yellow]  - выведет все логи которые найдет
+            [yellow]log -ti v0011[/yellow]  - выведет те логи у которых trace_id = v0011  (если найдет)
+            [yellow]log -ri t1230[/yellow]  - выведет те логи у которых request_id = t1230  (если найдет)
+            [yellow]log -ct audio_input[/yellow]  - выведет логи компонента audio_input (если такой есть)
+        """
+        cli_command_execute(
+            callback=lambda: log_viewer.view(
+                trace_id=trace_id,
+                request_id=request_id,
+                component=component
+            ),
+            command_name=ctx.command.name,
+        )
+
+
 def register_folder_command(app: typer.Typer, root_dir: Path) -> None:
     @app.command()
     def folder(ctx: typer.Context):
@@ -349,9 +384,11 @@ def get_cli_app(
         settings_manager: Any = None,
         server: ServerV1 | ServerV2 | None = None,
         trace_id_callback: Callable[[str], ...] | None = None,
+        log_viewer: LogViewer | None = None,
 ) -> typer.Typer:
     """
     Получение экземпляра typer для консоли приложения, с предопределенными базовыми методами.
+    :param log_viewer:  просмотрщик логов
     :param trace_id_callback: функция обработчик trace_id, например модификация id в шине сообщений (модуль infrastructure2/message_bus)
     :param cli_settings: настройки какие команды будут отображаться в cli.py по умолчанию все
     :param name: название приложения
@@ -419,6 +456,14 @@ def get_cli_app(
                 f'Для формирования команды run-server необходимо передать объект server.'
             )
         register_run_server(app=app, server=server, trace_id_callback=trace_id_callback)
+
+    #
+    if cli_settings.enable_log_viewer:
+        if log_viewer is None:
+            raise RuntimeError(
+                f'Для формирования команды log необходимо передать объект log-viewer.'
+            )
+        register_log(app=app, log_viewer=log_viewer)
 
     if not exe_mode:  # команды которые будут доступны только в режиме разработчика
         if cli_settings.enable_run_test:
