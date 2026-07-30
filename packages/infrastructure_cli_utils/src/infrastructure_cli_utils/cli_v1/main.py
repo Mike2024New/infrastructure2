@@ -7,6 +7,7 @@ from infrastructure_builder import build as builder_func
 from infrastructure_git_client import adapter_git_push_update
 from infrastructure_path_utils.open_folder import open_folder
 from infrastructure_other import parse_value_and_type_from_string
+from infrastructure_other import sync as uv_sync
 from dataclasses import dataclass
 from typing import Protocol
 
@@ -39,6 +40,7 @@ class CliSettings:
     enable_run_test: bool = False
     enable_settings_show: bool = False
     enable_settings_edit: bool = False
+    enable_register_sync: bool = False
 
 
 _exe_mode: bool = False
@@ -285,6 +287,28 @@ def register_git_push(app: typer.Typer, root_dir: Path):
         )
 
 
+def register_sync(app: typer.Typer, root_dir: Path):
+    @app.command()
+    def sync(ctx: typer.Context, ignore_deps: str | None = typer.Option(None, '-id', '--ignore-deps')):
+        """
+        Обновить пакеты из pyproject.toml, корректно обновляет вложенные репозитории с git.
+        Опции:
+            -id (--ignore-deps) - игнорировать пакеты, перадать аргумены в кавычках
+        Примеры команд:
+            [yellow]sync[/yellow]
+            [yellow]sync -id "infrastructure-server"[/yellow] - обновить все пакеты кроме infrastructure-server
+        """
+        cli_command_execute(
+            lambda: uv_sync(
+                root_dir=root_dir,
+                git_url='https://github.com/Mike2024New/infrastructure2',
+                git_branch='main',
+                ignore_deps=ignore_deps.split() if ignore_deps is not None else [],
+            ),
+            command_name=ctx.command.name,
+        )
+
+
 def register_run_test(app: typer.Typer, root_dir: Path):
     @app.command()
     def run_tests(
@@ -404,4 +428,6 @@ def get_cli_app(
         if cli_settings.enable_build_command:
             build_settings = build_settings or BuildParameters()  # проброс настроек
             register_build_command(app=app, build_settings=build_settings)
+        if cli_settings.enable_register_sync:
+            register_sync(app=app, root_dir=root_dir)
     return app
