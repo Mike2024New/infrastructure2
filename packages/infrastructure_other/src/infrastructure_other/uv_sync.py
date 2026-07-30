@@ -89,6 +89,7 @@ def sync(
     # 2. Получение зависимостей из toml
     deps_list = current_toml_data['project']['dependencies']
     sources_dict = current_toml_data.get('tool', {}).get('uv', {}).get('sources', {})
+    url_updates_list = []
 
     for dep in deps_list:
         if dep in ignore_deps:
@@ -102,7 +103,7 @@ def sync(
                 print(f'[yellow]Не удалось обновить {dep}, не получен хеш коммита.[/yellow]')
                 continue
             if dep in sources_dict:
-                if sources_dict[dep]['rev'] == latest_commit:
+                if sources_dict.get(dep, {}).get('rev', {}) == latest_commit:
                     continue
 
             dep = dep.split('@')[0] if 'git' in dep else dep
@@ -113,16 +114,20 @@ def sync(
                 f'git+https://github.com/{author}/{repo}.git'
                 f'@{latest_commit}#subdirectory=packages/{dep.replace('-', '_')}'
             )
-            cmd = ['uv', 'add', update_url]
-            res = subprocess.run(cmd, capture_output=True)
-            if res.returncode != 0:
-                print(f'Не удалось обновить `{dep}`, ошибка: {res.stderr}')
+            url_updates_list.append(update_url)
+
+    # Выкачивание всех зависимостей
+    if url_updates_list:
+        cmd = ['uv', 'add'] + url_updates_list
+        res = subprocess.run(cmd, capture_output=True)
+        if res.returncode != 0:
+            print(f'Не удалось обновить пакеты, ошибка: {res.stderr}')
 
     # функция расширитель
     if callback is not None and callable(callback):
         callback()
-
-    # в конце обязательно сделать uv sync, для удаленных пакетов
+    #
+    # # в конце обязательно сделать uv sync, для удаленных пакетов
     cmd = ['uv', 'sync']
     subprocess.run(cmd)
     return None
@@ -130,7 +135,7 @@ def sync(
 
 if __name__ == '__main__':
     sync(
-        root_dir=Path.cwd(),
+        root_dir=Path(r'S:\_projects\python\Infrastructure2'),
         git_url='git@github.com:Mike2024New/infrastructure2.git',
         # git_url='https://github.com/Mike2024New/infrastructure2',
         git_branch='main',
