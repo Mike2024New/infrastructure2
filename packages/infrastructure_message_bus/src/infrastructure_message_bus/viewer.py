@@ -16,7 +16,7 @@ from typing import Any
 ELK или Grafana Loki.
 """
 
-__all__ = ['LogViewer', 'LogViewerConfig', 'Filters', 'SearchFilters']
+__all__ = ['LogViewer', 'LogViewerConfig', 'Filters']
 
 
 # ============ Конфигурация ============
@@ -43,13 +43,6 @@ class Filters:
 
 
 @dataclass
-class SearchFilters:
-    trace_id: str | None = None
-    request_id: str | None = None
-    component: str | None = None
-
-
-@dataclass
 class LogViewerConfig:
     """Конфигурация просмотрщика логов"""
     root_path: Path
@@ -57,7 +50,6 @@ class LogViewerConfig:
     exclude_dirs: list[str] | None = field(default_factory=lambda: [
         '.venv', '__pycache__', '.git', '.pytest_cache'
     ])
-    search_filters: SearchFilters | None = field(default_factory=lambda: SearchFilters())
     log_pattern: str = 'log*.jsonl'
     date_format: str = '%H:%M:%S.%f %d.%m.%Y'
     separator: str = '  |  '  # Разделитель колонок
@@ -127,11 +119,13 @@ class LogViewer:
 
         return formatted_rows
 
-    def view(self) -> None:
+    def view(
+            self,
+            trace_id: str | None = None,
+            request_id: str | None = None,
+            component: str | None = None,
+    ) -> None:
         """Главный метод - сбор, сортировка и вывод"""
-        trace_id = self.config.search_filters.trace_id
-        request_id = self.config.search_filters.request_id
-        component = self.config.search_filters.component
 
         search_parameters = 'Фильтры:'
 
@@ -181,11 +175,6 @@ class LogViewer:
 # ============ Использование ============
 if __name__ == '__main__':
     fltrs = Filters()
-    search_fltrs = SearchFilters(
-        # trace_id='8ac35890',
-        # request_id=None,
-        # component='audio_input',
-    )
 
     config_log = LogViewerConfig(
         root_path=Path.cwd(),
@@ -198,7 +187,6 @@ if __name__ == '__main__':
             fltrs.request_id,
         ],
         separator='     ',
-        search_filters=search_fltrs,
     )
     viewer = LogViewer(config_log)
     viewer.view()
