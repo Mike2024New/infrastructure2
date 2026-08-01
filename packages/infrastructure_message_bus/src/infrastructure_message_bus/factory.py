@@ -113,6 +113,10 @@ def message_bus_factory(
         def set_trace_id(trace_id: str):
             message_bus._trace_id = trace_id
 
+        @staticmethod
+        def set_component_name(component: str):
+            message_bus._component_alias = component
+
     return message_bus_add, MessageBusSettings
 
 
@@ -151,6 +155,7 @@ if __name__ == '__main__':
         # request_id=str(uuid4())[:8],  # id для цепочки операций
     )
     message_bus_settings.enable_print()  # включение сообщений обратно
+    message_bus_settings.set_component_name(component='test')  # изменение названия (может быть полезным для тестов)
     # 3. Печатать
     message_buss(
         subcomponent='audio_input',  # название подмодуля

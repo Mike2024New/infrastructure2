@@ -71,6 +71,7 @@ class MessageBus:
         :param print_settings: настройки печати в реальном времени (сырая строка на печать?, печатать ли дату?)
         """
         self._trace_id = None
+        self._component_alias = None
         self._messages = deque(maxlen=max_size)
         self._lock = threading.Lock()  # защита от гонки состояний
         self._message_new_event = threading.Event()  # наблюдатель за появлением сообщений
@@ -92,6 +93,7 @@ class MessageBus:
         """
         with self._lock:
             message.trace_id = self._trace_id
+            message.component = self._component_alias if self._component_alias else message.component
             self._messages.append(message)
             self._message_new_event.set()  # сигнал о том что сообщение получено
             self._json_bufer_msg.append(message)
