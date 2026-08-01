@@ -1,7 +1,15 @@
-import uvicorn
-import os
-from fastapi import FastAPI, APIRouter
-from typing import Literal
+import os, uvicorn
+from typing import Literal, Callable, Any
+from fastapi import FastAPI, APIRouter, Request
+from fastapi.responses import JSONResponse
+from starlette.middleware.base import BaseHTTPMiddleware
+from typing import Type, Protocol
+
+
+# ================ протокол для создания обработчиков исключений ======
+class ExceptionHandlersProtocol(Protocol):
+    @staticmethod
+    def register(app: FastAPI) -> None: ...
 
 
 # ================= Клас обёртка над uvicorn ===========================
@@ -10,9 +18,9 @@ class ServerV2:
             self,
             application: FastAPI,
             app_name: str = '<unknow app>',
-            callback_start=None,
-            callback_end=None,
-            callback_start_error=None,
+            callback_start: Callable[[Any], None] = None,
+            callback_end: Callable[[Any], None] = None,
+            callback_start_error: Callable[[Any], None] = None,
     ):
         """
         Класс надстройка над uvicorn, отвечает за запуск и остановку сервера.
@@ -56,30 +64,70 @@ class ServerV2:
         self._server.should_exit = True
 
 
+from typing import Callable, AsyncIterator
+
+
 # ================= Фабрика сервера ===========================
+# 🙈 функция слегка перегружена кодом, нужно в идеале выделить время и попилить на компоненты
 def server_factory_v2(
         app_name: str = '<unknow app>',
-        callback_start=None,
-        callback_end=None,
-        callback_start_error=None,
+        lifespan: Callable[[FastAPI], AsyncIterator[None]] | None = None,
+        callback_start: Callable[[Any], None] = None,
+        callback_end: Callable[[Any], None] = None,
+        callback_start_error: Callable[[Any], None] = None,
+        middleware_err_enable: bool = True,
+        middleware_err_callback: Callable[[str, Exception], None] = None,
         routers_list: list[APIRouter] | None = None,
+        middlewares_list: list[tuple[Type[BaseHTTPMiddleware], dict]] | None = None,
+        exception_handlers: ExceptionHandlersProtocol | None = None,
         api_shudtown: bool = False,
         api_pid: bool = False,
 ) -> ServerV2:
     """
-    Простая фабрика сервера. Расчитана для создания внутренних серверов.
+    Простая фабрика сервера. Расчитана для создания внутренних серверов.:
+    :param lifespan:
+    :param exception_handlers: кастомные обработчики исключений передаются через класс ExceptionHandlers
+    :param middleware_err_enable: подключение энпоинта обрабатывающего непредусмотренные ошибки (убирает трассировку и терминала)
+    :param middleware_err_callback: действие в случае ошибки в middleware_err, применяется если middleware_err_enable
     :param routers_list: кастомные роутеры приложений.
+    :param middlewares_list: добавление промежуточных слоёв (последовательность важно)
     :param app_name: название сервера для отображения его в api
     :param callback_start: действие перед запуском сервера (например логирование)
     :param callback_end: действие после завершения работы сервера (например логирование)
-    :param callback_start_error: действие в случае ошибки (например логирование)
+    :param callback_start_error: действие в случае ошибки (например логирование)а
     :param api_shudtown: http завершение работы сервера ! Не рекомендуется включать для публичных api серверов!
     :param api_pid: http получение текущего id процесса ! Не рекомендуется включать для публичных api серверов!
     :return: Объект сервера с методами start(port, log_level), stop.
     """
-    app = FastAPI(title=app_name)
+
+    app = FastAPI(title=app_name, lifespan=lifespan)
+
+    # подключение промежуточного слоя для обработки ошибок.
+    if middleware_err_enable:
+        @app.middleware("http")
+        async def global_exception_middleware(request: Request, call_next):
+            try:
+                return await call_next(request)
+            except Exception as exc:
+                if middleware_err_callback is not None and callable(middleware_err_callback):
+                    middleware_err_callback(request.url.path, exc)
+
+                return JSONResponse(
+                    status_code=500,
+                    content={
+                        "error": "Внутренняя ошибка сервера",
+                        "detail": str(exc),
+                        "path": request.url.path
+                    }
+                )
+
+    # Подключение кастомных обработчиков специфических исключений (например ValueError)
+    if exception_handlers is not None:
+        exception_handlers.register(app)
+
     system_routres = APIRouter(tags=['system'])
     routers_list = routers_list or []
+    middlewares_list = middlewares_list or []
 
     server = ServerV2(
         application=app,
@@ -117,6 +165,10 @@ def server_factory_v2(
 
     if api_pid:
         pid_api_register()
+
+    # добавление промежуточных слоёв (с параметрами)
+    for midleware, kwargs in middlewares_list:
+        app.add_middleware(midleware, **kwargs)
 
     # добавление пользовательских роутеров приложения
     for router in routers_list:
