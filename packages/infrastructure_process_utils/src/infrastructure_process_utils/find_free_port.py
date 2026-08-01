@@ -14,6 +14,7 @@ def find_free_port(
     :param ignore_ports_list: игнорировать эти порты (иногда сервера ещё не успели запуститься а порт уже занят)
     :return:
     """
+    ignore_ports_list = ignore_ports_list or []
     for port in range(start_port, start_port + max_attempts):
         if port in ignore_ports_list:
             continue
