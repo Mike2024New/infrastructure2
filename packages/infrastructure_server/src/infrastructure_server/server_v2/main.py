@@ -1,9 +1,8 @@
 import os, uvicorn
-from typing import Literal, Callable, Any
 from fastapi import FastAPI, APIRouter, Request
 from fastapi.responses import JSONResponse
 from starlette.middleware.base import BaseHTTPMiddleware
-from typing import Type, Protocol
+from typing import Type, Protocol, AsyncGenerator, Literal, Callable, Any
 
 
 # ================ протокол для создания обработчиков исключений ======
@@ -64,14 +63,11 @@ class ServerV2:
         self._server.should_exit = True
 
 
-from typing import Callable, AsyncIterator
-
-
 # ================= Фабрика сервера ===========================
 # 🙈 функция слегка перегружена кодом, нужно в идеале выделить время и попилить на компоненты
 def server_factory_v2(
         app_name: str = '<unknow app>',
-        lifespan: Callable[[FastAPI], AsyncIterator[None]] | None = None,
+        lifespan: Callable[[FastAPI], AsyncGenerator[None, None]] | None = None,
         callback_start: Callable[[Any], None] = None,
         callback_end: Callable[[Any], None] = None,
         callback_start_error: Callable[[Any], None] = None,
