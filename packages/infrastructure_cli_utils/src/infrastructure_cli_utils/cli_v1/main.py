@@ -7,7 +7,7 @@ from infrastructure_builder import build as builder_func
 from infrastructure_git_client import adapter_git_push_update
 from infrastructure_path_utils.open_folder import open_folder
 from infrastructure_other import parse_value_and_type_from_string
-from infrastructure_other import sync as uv_sync
+from infrastructure_other import sync2 as uv_sync2
 from dataclasses import dataclass
 from typing import Protocol
 
@@ -334,9 +334,8 @@ def register_sync(app: typer.Typer, root_dir: Path):
             [yellow]sync -id "infrastructure-server"[/yellow] - обновить все пакеты кроме infrastructure-server
         """
         cli_command_execute(
-            lambda: uv_sync(
+            lambda: uv_sync2(
                 root_dir=root_dir,
-                git_url='https://github.com/Mike2024New/infrastructure2',
                 git_branch='main',
                 ignore_deps=ignore_deps.split() if ignore_deps is not None else [],
             ),
