@@ -8,6 +8,25 @@ class ServerProbe:
     Например проверка что сервер запущен, или наоборот что сервер остановлен.
     """
 
+    @classmethod
+    def polling(
+            cls,
+            url: str,
+            timeout: float = 5,
+            interval: float = 0.3,
+            expected_status: int = 200,
+    ) -> None:
+        """
+        Поллинг сервера. Опрос его timeout времени, с шагом interval. (Нужно учитывать rate limit, или делать long polling)
+        (Дублирует логику wait_for_server_up, так как название polling удобнее)
+        :param url: url
+        :param timeout: время ожидания
+        :param interval: интервал между запросами
+        :param expected_status: ожидаемый статус код от сервера (обычно 200)
+        :return: None -> возбуждает исключение если сервер не запустился за timeout время
+        """
+        return cls.wait_for_server_up(url, timeout, interval, expected_status)
+
     @staticmethod
     def wait_for_server_up(
             url: str,

@@ -98,7 +98,7 @@ def server_factory_v2(
 
     app = FastAPI(title=app_name, lifespan=lifespan)
 
-    # подключение промежуточного слоя для обработки ошибок.
+    # подключение промежуточного слоя для обработки ошибок (обрабатываются не учтенные ошибки).
     if middleware_err_enable:
         @app.middleware("http")
         async def global_exception_middleware(request: Request, call_next):
