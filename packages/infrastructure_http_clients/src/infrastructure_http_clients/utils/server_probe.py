@@ -15,6 +15,7 @@ class ServerProbe:
             timeout: float = 5,
             interval: float = 0.3,
             expected_status: int = 200,
+            **kwargs,
     ) -> requests.Response | None:
         """
         Поллинг сервера. Опрос его timeout времени, с шагом interval. (Нужно учитывать rate limit, или делать long polling)
@@ -26,7 +27,7 @@ class ServerProbe:
         :param expected_status: ожидаемый статус код от сервера (обычно 200)
         :return: None -> возбуждает исключение если сервер не запустился за timeout время
         """
-        return cls.wait_for_server_up(url, timeout, interval, expected_status)
+        return cls.wait_for_server_up(url, timeout, interval, expected_status, **kwargs)
 
     @staticmethod
     def wait_for_server_up(
@@ -34,6 +35,7 @@ class ServerProbe:
             timeout: float = 5,
             interval: float = 0.3,
             expected_status: int = 200,
+            **kwargs,
     ) -> requests.Response | None:
         """
         Проверка что сервер запущен. Опрос его timeout времени, с шагом interval.
@@ -47,7 +49,7 @@ class ServerProbe:
         deadline = time()
         while time() - deadline < timeout:
             try:
-                res = requests.get(url, timeout=1)
+                res = requests.get(url, timeout=1, **kwargs)
                 if res.status_code == expected_status:
                     return res
             except requests.exceptions.ConnectionError:
@@ -59,7 +61,12 @@ class ServerProbe:
         raise TimeoutError(f'Превышено время ожидания для `{url}`')
 
     @staticmethod
-    def wait_for_server_down(url: str, timeout: float = 5, interval: float = 0.3) -> None:
+    def wait_for_server_down(
+            url: str,
+            timeout: float = 5,
+            interval: float = 0.3,
+            **kwargs,
+    ) -> None:
         """
         Проверка что сервер завершил работу. Опрос его timeout времени, с шагом interval.
         :param url: url
@@ -70,7 +77,7 @@ class ServerProbe:
         deadline = time()
         while time() - deadline < timeout:
             try:
-                requests.get(url, timeout=1)
+                requests.get(url, timeout=1, **kwargs)
             except (requests.exceptions.ConnectionError, requests.exceptions.RequestException):
                 return
             sleep(interval)
