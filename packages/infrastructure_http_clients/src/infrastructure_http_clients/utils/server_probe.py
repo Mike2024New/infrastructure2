@@ -15,9 +15,10 @@ class ServerProbe:
             timeout: float = 5,
             interval: float = 0.3,
             expected_status: int = 200,
-    ) -> None:
+    ) -> requests.Response | None:
         """
         Поллинг сервера. Опрос его timeout времени, с шагом interval. (Нужно учитывать rate limit, или делать long polling)
+        возвращает response сервера
         (Дублирует логику wait_for_server_up, так как название polling удобнее)
         :param url: url
         :param timeout: время ожидания
@@ -33,9 +34,10 @@ class ServerProbe:
             timeout: float = 5,
             interval: float = 0.3,
             expected_status: int = 200,
-    ) -> None:
+    ) -> requests.Response | None:
         """
         Проверка что сервер запущен. Опрос его timeout времени, с шагом interval.
+        возвращает response сервера
         :param url: url
         :param timeout: время ожидания
         :param interval: интервал между запросами
@@ -47,7 +49,7 @@ class ServerProbe:
             try:
                 res = requests.get(url, timeout=1)
                 if res.status_code == expected_status:
-                    return None
+                    return res
             except requests.exceptions.ConnectionError:
                 pass
             except requests.exceptions.RequestException:
@@ -57,7 +59,7 @@ class ServerProbe:
         raise TimeoutError(f'Превышено время ожидания для `{url}`')
 
     @staticmethod
-    def wait_for_server_down(url: str, timeout: float = 5, interval: float = 0.3):
+    def wait_for_server_down(url: str, timeout: float = 5, interval: float = 0.3) -> None:
         """
         Проверка что сервер завершил работу. Опрос его timeout времени, с шагом interval.
         :param url: url
