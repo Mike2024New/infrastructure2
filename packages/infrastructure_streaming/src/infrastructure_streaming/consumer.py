@@ -1,11 +1,11 @@
-import asyncio, json, websockets
-from typing import Callable, Any
+import asyncio, websockets
+from typing import Callable
 
 
 async def consume_stream(
         url: str,
         data: str,
-        callback: Callable[[Any], None],
+        callback: Callable[[bytes], None],
         event: asyncio.Event,
         timeout: float = 1.0
 ) -> None:
@@ -15,7 +15,7 @@ async def consume_stream(
     полученные чанки (порции)
     :param url: url формата websocket, например ws://{host}:{port}/ws
     :param data: передаваемые на сервер данные
-    :param callback: функция обрабатывающая ответ сервера, json ответ
+    :param callback: функция обрабатывающая ответ сервера, ответ полученный в байтах (обработка ответа - прерогатива callback)
     :param event: прерыватель стрима (установить set во внешнем коде и стрим остановится досрочно)
     :param timeout: ожидание ответа сервера время в секундах
     :return: None
@@ -28,7 +28,6 @@ async def consume_stream(
                     print(f'stream cancelled')
                     break
                 response = await asyncio.wait_for(ws.recv(), timeout=timeout)
-                response = json.loads(response)
                 try:
                     callback(response)
                 except Exception as err:
