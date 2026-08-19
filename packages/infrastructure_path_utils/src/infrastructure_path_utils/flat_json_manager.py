@@ -47,7 +47,7 @@ class FlatJsonManager:
 
     def _save(self, data: dict) -> None:
         """Запись файла json"""
-        with open(self._json_file_path, mode='w', encoding='utf-16') as f:
+        with open(self._json_file_path, mode='w') as f:
             f.write(json.dumps(data, ensure_ascii=False, indent=2))
 
     def _init(self) -> None:
@@ -57,7 +57,7 @@ class FlatJsonManager:
 
     def _read(self) -> dict[str, Any]:
         """Чтение файла json, если файла нет то создание нового"""
-        with open(self._json_file_path, mode='r', encoding='utf-16') as f:
+        with open(self._json_file_path, mode='r') as f:
             data = json.loads(f.read())
         return data
 
