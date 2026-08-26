@@ -1,0 +1,7 @@
+[project]
+name = "infrastructure-progress"
+version = "0.1.0"
+description = "Набор прогесс баров и спинеров, для длительных операций."
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = []
