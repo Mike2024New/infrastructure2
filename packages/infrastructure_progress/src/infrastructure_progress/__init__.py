@@ -1,3 +1,3 @@
 from spiners import spiner
 
-__all__ = ['spiners']
+__all__ = ['spiner']
