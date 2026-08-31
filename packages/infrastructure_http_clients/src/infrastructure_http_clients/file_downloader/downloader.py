@@ -2,6 +2,7 @@ import asyncio
 
 from infrastructure_http_clients.file_downloader.get_file_size import get_total_size
 from infrastructure_http_clients.file_downloader.models import Download, DownloadMonitor
+from infrastructure_http_clients.file_downloader.models import DownloadFile as DownloadFileType
 import aiohttp
 
 
@@ -80,7 +81,7 @@ class DownloadFile:
 
             self.register[download.label].done = True
 
-    async def download(self, session: aiohttp.client.ClientSession, download: Download):
+    async def download(self, session: aiohttp.client.ClientSession, download: Download | DownloadFileType):
         """Загрузка файлов, с учётом fallback url."""
         exit_for = False
         for url in download.url_list:
