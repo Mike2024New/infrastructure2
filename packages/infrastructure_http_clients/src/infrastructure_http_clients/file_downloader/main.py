@@ -1,12 +1,12 @@
 import aiohttp, asyncio
 from pathlib import Path
 from infrastructure_http_clients.file_downloader.downloader import DownloadFile
-from infrastructure_http_clients.file_downloader.models import Download
+from infrastructure_http_clients.file_downloader.models import DownloadFileType
 from infrastructure_http_clients.file_downloader.console_progress_bar import progress_console_render
 
 
 async def file_downloader(
-        download_list: list[Download],
+        download_list: list[DownloadFileType],
         console_progress_bar: bool = True,
         timeout: float = 5.0,
         attempts: int = 3,
@@ -48,61 +48,61 @@ if __name__ == '__main__':
     async def main():
         # пример использования:
         download_list = [
-            # Download(
+            # DownloadFileType(
             #     url_list=[
             #         'https://github.com/git-for-windows/git/releases/download/v2.54.0.windows.1/MinGit-2.54.0-64-bit.zip',
             #     ],
             #     target_dir=Path.cwd() / 'models' / 'MinGit',
-            #     label='MinGit-2.54.0-64-bit.zip',
+            #     filename='MinGit-2.54.0-64-bit.zip',
             #     replace=False,
             # ),
-            # Download(
+            # DownloadFileType(
             #     url_list=[
             #         'https://github.com/Mike2024New/Pyoffline2/archive/refs/heads/main.zip',
             #     ],
             #     target_dir=Path.cwd() / 'models' / 'Pyoffline2',
-            #     label='Pyoffline2.zip',
+            #     filename='Pyoffline2.zip',
             #     replace=False,
             # ),
-            Download(
+            DownloadFileType(
                 url_list=[
                     'https://huggingface.co/Systran/faster-whisper-tiny/resolve/main/model.bin',
                 ],
                 target_dir=Path.cwd() / 'models' / 'faster-whisper-tiny',
-                label='faster-whisper-tiny/model.bin',
+                filename='faster-whisper-tiny/model.bin',
                 replace=False,
             ),
-            # Download(
-            #     url_list=[
-            #         'https://huggingface.co/Systran/faster-whisper-tiny/resolve/main/config.json',
-            #     ],
-            #     target_dir=Path.cwd() / 'models' / 'faster-whisper-tiny',
-            #     label='faster-whisper-tiny/config.json',
-            #     replace=False,
-            # ),
-            # Download(
-            #     url_list=[
-            #         'https://huggingface.co/Systran/faster-whisper-tiny/resolve/main/tokenizer.json',
-            #     ],
-            #     target_dir=Path.cwd() / 'models' / 'faster-whisper-tiny',
-            #     label='faster-whisper-tiny/tokenizer.json',
-            #     replace=False,
-            # ),
-            # Download(
-            #     url_list=[
-            #         'https://huggingface.co/Systran/faster-whisper-tiny/resolve/main/vocabulary.txt',
-            #     ],
-            #     target_dir=Path.cwd() / 'models' / 'faster-whisper-tiny',
-            #     label='faster-whisper-tiny/vocabulary.txt',
-            #     replace=False,
-            # ),
-            # Download(
+            DownloadFileType(
+                url_list=[
+                    'https://huggingface.co/Systran/faster-whisper-tiny/resolve/main/config.json',
+                ],
+                target_dir=Path.cwd() / 'models' / 'faster-whisper-tiny',
+                filename='faster-whisper-tiny/config.json',
+                replace=False,
+            ),
+            DownloadFileType(
+                url_list=[
+                    'https://huggingface.co/Systran/faster-whisper-tiny/resolve/main/tokenizer.json',
+                ],
+                target_dir=Path.cwd() / 'models' / 'faster-whisper-tiny',
+                filename='faster-whisper-tiny/tokenizer.json',
+                replace=False,
+            ),
+            DownloadFileType(
+                url_list=[
+                    'https://huggingface.co/Systran/faster-whisper-tiny/resolve/main/vocabulary.txt',
+                ],
+                target_dir=Path.cwd() / 'models' / 'faster-whisper-tiny',
+                filename='faster-whisper-tiny/vocabulary.txt',
+                replace=False,
+            ),
+            # DownloadFileType(
             #     url_list=[
             #         'https://alphacephei.com/vosk/models/vosk-model-small-ru-0.22.zip',
             #         'https://github.com/Mike2024New/STT_OFFLINE/releases/download/v1.1.0/vosk-model-small-ru-0.22.zip',
             #     ],
             #     target_dir=Path.cwd() / 'models' / 'vosk-model-small-ru-0.22',
-            #     label='vosk-model-small-ru-0.22',
+            #     filename='vosk-model-small-ru-0.22',
             #     replace=False,
             # ),
         ]

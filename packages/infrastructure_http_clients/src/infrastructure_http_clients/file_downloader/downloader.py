@@ -1,8 +1,8 @@
 import asyncio
 
 from infrastructure_http_clients.file_downloader.get_file_size import get_total_size
-from infrastructure_http_clients.file_downloader.models import Download, DownloadMonitor
-from infrastructure_http_clients.file_downloader.models import DownloadFile as DownloadFileType
+from infrastructure_http_clients.file_downloader.models import DownloadMonitor
+from infrastructure_http_clients.file_downloader.models import DownloadFileType
 import aiohttp
 
 
@@ -26,9 +26,9 @@ class DownloadFile:
         self._tolerance = tolerance
         self.register: dict[str, DownloadMonitor] = {}
 
-    async def _download_file(self, session: aiohttp.client.ClientSession, url: str, download: Download) -> None:
+    async def _download_file(self, session: aiohttp.client.ClientSession, url: str, download: DownloadFileType) -> None:
         """Скачивание файла по конкретному url. Обновляет данные по очкам загрузки"""
-        self.register[download.label] = DownloadMonitor()
+        self.register[download.filename] = DownloadMonitor()
 
         # создание директории (если её ещё нет)
         download.target_dir.mkdir(parents=True, exist_ok=True)
@@ -36,9 +36,9 @@ class DownloadFile:
         file_path = download.target_dir / url.split('/')[-1]
 
         # получение размера файла
-        if self.register[download.label].total_bytes <= 0:
+        if self.register[download.filename].total_bytes <= 0:
             total_size = await get_total_size(session, url=url, timeout=self._timeout)
-            self.register[download.label].total_bytes = total_size
+            self.register[download.filename].total_bytes = total_size
 
         # размер уже скачанного файла (докачка если файл отсутствует)
         local_size = file_path.stat().st_size if file_path.exists() else 0
@@ -49,22 +49,22 @@ class DownloadFile:
 
             if (
                     not download.replace and local_size > 0 and
-                    abs(local_size - self.register[download.label].total_bytes) <= self._tolerance
+                    abs(local_size - self.register[download.filename].total_bytes) <= self._tolerance
             ):
-                self.register[download.label].is_exists = True
+                self.register[download.filename].is_exists = True
                 return
 
             # если файл существует и известен его размер а также размер скачиваемого файла, то сравнить их
             if (
-                    local_size and self.register[download.label].total_bytes
-                    and self.register[download.label].total_bytes > local_size
+                    local_size and self.register[download.filename].total_bytes
+                    and self.register[download.filename].total_bytes > local_size
             ):
                 headers = {'Range': f'bytes={local_size}-'}
 
         async with session.get(url, headers=headers) as response:
             if response.status == 206:
                 mode = 'ab'
-                self.register[download.label].download_bytes = local_size
+                self.register[download.filename].download_bytes = local_size
             else:
                 mode = 'wb'
 
@@ -74,14 +74,14 @@ class DownloadFile:
                         chunk = await asyncio.wait_for(response.content.read(self._chunk_size), timeout=self._timeout)
                         if not chunk:  # все чанки получены, на выход
                             break
-                        self.register[download.label].download_bytes += len(chunk)
+                        self.register[download.filename].download_bytes += len(chunk)
                         f.write(chunk)
                     except asyncio.TimeoutError:
                         raise
 
-            self.register[download.label].done = True
+            self.register[download.filename].done = True
 
-    async def download(self, session: aiohttp.client.ClientSession, download: Download | DownloadFileType):
+    async def download(self, session: aiohttp.client.ClientSession, download: DownloadFileType):
         """Загрузка файлов, с учётом fallback url."""
         exit_for = False
         for url in download.url_list:

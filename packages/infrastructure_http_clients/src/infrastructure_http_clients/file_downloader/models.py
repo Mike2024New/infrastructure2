@@ -10,7 +10,7 @@ class Download:
     replace: bool = False
 
 @dataclass
-class DownloadFile:
+class DownloadFileType:
     url_list: list[str]
     target_dir: Path
     filename: str
