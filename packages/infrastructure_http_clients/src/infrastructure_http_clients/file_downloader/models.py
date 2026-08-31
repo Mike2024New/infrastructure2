@@ -9,7 +9,7 @@ class Download:
     label: str
     replace: bool = False
 
-
+@dataclass
 class DownloadFile:
     url_list: list[str]
     target_dir: Path
