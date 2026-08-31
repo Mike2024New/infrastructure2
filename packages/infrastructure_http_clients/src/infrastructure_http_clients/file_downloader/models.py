@@ -10,6 +10,13 @@ class Download:
     replace: bool = False
 
 
+class DownloadFile:
+    url_list: list[str]
+    target_dir: Path
+    filename: str
+    replace: bool = False
+
+
 @dataclass
 class DownloadMonitor:
     download_bytes: float = 0.0
