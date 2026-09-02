@@ -85,7 +85,7 @@ def build(parameters: BuildParameters) -> None | Path:
     print('[green]Сборка приложения [/green]')
 
     # проверка входного пути
-    if parameters.entry_point_path.parts[-1] != '.py':
+    if parameters.entry_point_path.suffix != '.py':
         RuntimeError(f'Входной путь должен быть .py файлом, а на вход подан `{parameters.entry_point_path}`')
     if not parameters.entry_point_path.exists():
         RuntimeError(f'Входной путь `{parameters.entry_point_path}` не существует.')
