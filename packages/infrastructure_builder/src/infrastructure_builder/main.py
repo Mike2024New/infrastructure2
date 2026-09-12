@@ -50,6 +50,7 @@ class BuildParameters:
         open_folder=True # открыть папку с дистрибутивом после создания дистрибутива
         copy_dirs=[(./add_dir, 'dir_name'), (./add_dir2, 'dir_name2'),] # копируемые директории
         copy_from_dist_to_target_dir = Path('./project') # копирование собранного дистрибутива в конкретную папку
+        delete_dist_folder: bool = False  # удалить папку с промежуточным дистрибутивом
     )
     """
     name: str = 'APP'
@@ -68,6 +69,7 @@ class BuildParameters:
     open_folder: bool = False  # открыть папку после создания дистрибутива
     copy_dirs: list[tuple[Path, str]] = field(default_factory=list)  # список файлов для копирования
     copy_from_dist_to_target_dir: Path | None = None  # копировать собранный дистрибутив в указ папку (если не None)
+    delete_dist_folder: bool = False  # удалить папку с промежуточным дистрибутивом
 
 
 def build(parameters: BuildParameters) -> None | Path:
@@ -201,6 +203,12 @@ def build(parameters: BuildParameters) -> None | Path:
     if parameters.copy_from_dist_to_target_dir is not None:
         print(f'[green]Копирование сборки в целевую папку[/green]')
         shutil.copytree(distributive_path, parameters.copy_from_dist_to_target_dir, dirs_exist_ok=True)
+
+    # удаление папки dist, релевантно если было выполнено копирование copy_from_dist_to_target_dir
+    if parameters.delete_dist_folder:
+        print(f'[green]Копирование сборки в целевую папку[/green]')
+        shutil.rmtree(distributive_path)
+        return None
 
     print(
         f'[green]Приложение [bold]{parameters.name}[/bold] собрано.\nПуть к дистрибутиву: {distributive_path}[/green]'
