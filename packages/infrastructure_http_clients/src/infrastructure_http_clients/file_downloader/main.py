@@ -28,6 +28,7 @@ async def file_downloader(
         downloader = DownloadFile(timeout=timeout, attempts=attempts, tolerance=tolerance, chunk_size=chunk_size)
         tasks = [downloader.download(session, download) for download in download_list]
         event_progress = asyncio.Event()
+
         # подключение прогресс-бара
         if console_progress_bar:
             progress_task = asyncio.create_task(
@@ -50,10 +51,10 @@ if __name__ == '__main__':
         download_list = [
             DownloadFileType(
                 url_list=[
-                    'https://github.com/Mike2024New/svc_audio_input/archive/refs/heads/main.zip',
+                    'https://models.silero.ai/models/tts/ru/v5_5_ru.pt',
                 ],
-                target_dir=Path.cwd() / 'models' / 'svc_audio_input',
-                filename='svc_audio_input.zip',
+                target_dir=Path.cwd() / 'models' / 'silero',
+                filename='v5_5_ru.pt',
                 replace=False,
             ),
         ]

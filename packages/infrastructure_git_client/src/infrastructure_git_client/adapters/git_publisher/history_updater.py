@@ -82,7 +82,7 @@ def update_module_history(
     :param history_new_marker: начало строки нового поста
     :return: None
     """
-    for file in md_files_dir.rglob('*md'):
+    for file in md_files_dir.rglob('*.md'):
         with open(file, mode='r', encoding='utf-8') as fr:
             content = fr.read()
             update_content = process_history_block(
