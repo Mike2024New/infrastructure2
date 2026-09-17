@@ -36,6 +36,7 @@ class BuildParameters:
     :param clear_old_distributive: удалить следы предыдущих дистрибутивов?
     :param open_folder: открыть папку с дистрибутивом после создания дистрибутива
     :param copy_dirs: копируемые директории, список заполненный кортежами вида (<копируемая папка>, <её название в папке дистрибутива>)
+    :param no_show_process: показывать ли логи инсталлера (capture_output)
     :return: None
     Пример заполнения:
     BuildParameters(
@@ -70,6 +71,7 @@ class BuildParameters:
     copy_dirs: list[tuple[Path, str]] = field(default_factory=list)  # список файлов для копирования
     copy_from_dist_to_target_dir: Path | None = None  # копировать собранный дистрибутив в указ папку (если не None)
     delete_releases_folder: bool = False  # удалить папку с промежуточным дистрибутивом
+    no_show_process: bool = False  # показывать ли логи инсталлера
 
 
 def build(parameters: BuildParameters) -> None | Path:
@@ -84,8 +86,6 @@ def build(parameters: BuildParameters) -> None | Path:
         parameters = BuildParameters( ... настройки приложения ... )
     )
     """
-    print('[green]Сборка приложения [/green]')
-
     # проверка входного пути
     if parameters.entry_point_path.suffix != '.py':
         RuntimeError(f'Входной путь должен быть .py файлом, а на вход подан `{parameters.entry_point_path}`')
@@ -93,7 +93,6 @@ def build(parameters: BuildParameters) -> None | Path:
         RuntimeError(f'Входной путь `{parameters.entry_point_path}` не существует.')
 
     # определение системных путей
-    print('[green]Формирование команды сборки[/green]')
     root_dir = get_root_dir_path(venv_dir_name=parameters.venv_dir_name)
     is_windows = platform.system().lower() == 'windows'
     separator = ";" if is_windows else ":"
@@ -163,7 +162,7 @@ def build(parameters: BuildParameters) -> None | Path:
         if file_spec_path.exists():
             os.remove(file_spec_path)
 
-    result = subprocess.run(cmd, shell=is_windows)
+    result = subprocess.run(cmd, shell=is_windows, capture_output=parameters.no_show_process)
     if result.returncode != 0:
         raise RuntimeError(
             f'Ошибка сборки приложения:\n'
@@ -176,7 +175,6 @@ def build(parameters: BuildParameters) -> None | Path:
 
     resources_dir = root_dir / 'resources'
     if parameters.create_resources_symlink:
-        print('[green]Создание симлинка[/green]')
         if not resources_dir.exists():
             print(f'[yellow]Симлинк не создан так как в корне отсутствует папка resources.[/yellow]')
         else:
@@ -191,26 +189,18 @@ def build(parameters: BuildParameters) -> None | Path:
     # копирование заданных файлов
     if parameters.copy_dirs:
         for target_dir, name in parameters.copy_dirs:
-            print(f'[green]Копирование из `{target_dir}` в `{distributive_path / name}`[/green]')
             shutil.copytree(str(target_dir), distributive_path / name)
 
     # открытие папки в конце сборки
     if parameters.open_folder:
-        print('[green]открытие папки[/green]')
         open_folder(path=distributive_path)
 
     # Скопировать сборку в целевую директорию (полезно для систем оркестрации, доставка без ручного копирования)
     if parameters.copy_from_dist_to_target_dir is not None:
-        print(f'[green]Копирование сборки в целевую папку[/green]')
         shutil.copytree(distributive_path, parameters.copy_from_dist_to_target_dir, dirs_exist_ok=True)
 
     # удаление папки releases, релевантно если сборка 1 файлом и было выполнено копирование copy_from_dist_to_target_dir
     if parameters.delete_releases_folder:
-        print(f'[green]Копирование сборки в целевую папку[/green]')
         shutil.rmtree(root_dir / 'releases')
         return None
-
-    print(
-        f'[green]Приложение [bold]{parameters.name}[/bold] собрано.\nПуть к дистрибутиву: {distributive_path}[/green]'
-    )
     return distributive_path
