@@ -1,3 +1,9 @@
+import truststore
+
+# Использовать системное хранилище сертификатов ОС (Windows/macOS/Linux),
+# иначе на части систем падает SSL: CERTIFICATE_VERIFY_FAILED
+truststore.inject_into_ssl()
+
 from infrastructure_http_clients.downloader import Downloader
 from infrastructure_http_clients.adapters import adpater_download_from_hf
 from infrastructure_http_clients.utils import ServerProbe

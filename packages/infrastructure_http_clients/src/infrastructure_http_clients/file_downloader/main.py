@@ -24,6 +24,7 @@ async def file_downloader(
         :param tolerance: допуск отклонения размера файла в кб. (например git_api и фактический размер уже загруженного файла отличаются)
     :return:
     """
+
     async with aiohttp.ClientSession() as session:
         downloader = DownloadFile(timeout=timeout, attempts=attempts, tolerance=tolerance, chunk_size=chunk_size)
         tasks = [downloader.download(session, download) for download in download_list]
@@ -49,12 +50,20 @@ if __name__ == '__main__':
     async def main():
         # пример использования:
         download_list = [
+            # DownloadFileType(
+            #     url_list=[
+            #         'https://models.silero.ai/models/tts/ru/v5_5_ru.pt',
+            #     ],
+            #     target_dir=Path.cwd() / 'models' / 'silero',
+            #     filename='v5_5_ru.pt',
+            #     replace=False,
+            # ),
             DownloadFileType(
                 url_list=[
-                    'https://models.silero.ai/models/tts/ru/v5_5_ru.pt',
+                    'https://github.com/astral-sh/python-build-standalone/releases/download/20260825/cpython-3.12.14+20260825-x86_64-pc-windows-msvc-install_only.tar.gz',
                 ],
-                target_dir=Path.cwd() / 'models' / 'silero',
-                filename='v5_5_ru.pt',
+                target_dir=Path.cwd() / 'models' / 'python',
+                filename='cpython-3.12.14+20260825-x86_64-pc-windows-msvc-install_only.tar.gz',
                 replace=False,
             ),
         ]

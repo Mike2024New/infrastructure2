@@ -45,6 +45,7 @@ class DownloadFile:
 
         headers = {}
         # проверка что файл не был скачан ранее
+
         if file_path.exists:
 
             if (
@@ -61,25 +62,29 @@ class DownloadFile:
             ):
                 headers = {'Range': f'bytes={local_size}-'}
 
-        async with session.get(url, headers=headers) as response:
-            if response.status == 206:
-                mode = 'ab'
-                self.register[download.filename].download_bytes = local_size
-            else:
-                mode = 'wb'
+        try:
+            async with session.get(url, headers=headers) as response:
+                if response.status == 206:
+                    mode = 'ab'
+                    self.register[download.filename].download_bytes = local_size
+                else:
+                    mode = 'wb'
 
-            with open(file_path, mode) as f:
-                while True:
-                    try:
-                        chunk = await asyncio.wait_for(response.content.read(self._chunk_size), timeout=self._timeout)
-                        if not chunk:  # все чанки получены, на выход
-                            break
-                        self.register[download.filename].download_bytes += len(chunk)
-                        f.write(chunk)
-                    except asyncio.TimeoutError:
-                        raise
+                with open(file_path, mode) as f:
+                    while True:
+                        try:
+                            chunk = await asyncio.wait_for(response.content.read(self._chunk_size),
+                                                           timeout=self._timeout)
+                            if not chunk:  # все чанки получены, на выход
+                                break
+                            self.register[download.filename].download_bytes += len(chunk)
+                            f.write(chunk)
+                        except asyncio.TimeoutError:
+                            raise
 
-            self.register[download.filename].done = True
+                self.register[download.filename].done = True
+        except Exception as err:
+            print(err)
 
     async def download(self, session: aiohttp.client.ClientSession, download: DownloadFileType):
         """Загрузка файлов, с учётом fallback url."""
