@@ -1,4 +1,5 @@
 import asyncio
+import os
 
 from infrastructure_http_clients.file_downloader.get_file_size import get_total_size
 from infrastructure_http_clients.file_downloader.models import DownloadMonitor
@@ -26,7 +27,7 @@ class DownloadFile:
         self._tolerance = tolerance
         self.register: dict[str, DownloadMonitor] = {}
 
-    async def _download_file(self, session: aiohttp.client.ClientSession, url: str, download: DownloadFileType) -> None:
+    async def _download_file(self, session: aiohttp.client.ClientSession, url: str, download: DownloadFileType) -> bool:
         """Скачивание файла по конкретному url. Обновляет данные по очкам загрузки"""
         self.register[download.filename] = DownloadMonitor()
 
@@ -42,18 +43,17 @@ class DownloadFile:
 
         # размер уже скачанного файла (докачка если файл отсутствует)
         local_size = file_path.stat().st_size if file_path.exists() else 0
-
         headers = {}
         # проверка что файл не был скачан ранее
 
-        if file_path.exists:
+        if file_path.exists():
 
             if (
                     not download.replace and local_size > 0 and
                     abs(local_size - self.register[download.filename].total_bytes) <= self._tolerance
             ):
                 self.register[download.filename].is_exists = True
-                return
+                return True
 
             # если файл существует и известен его размер а также размер скачиваемого файла, то сравнить их
             if (
@@ -67,8 +67,11 @@ class DownloadFile:
                 if response.status == 206:
                     mode = 'ab'
                     self.register[download.filename].download_bytes = local_size
-                else:
+                elif response.status == 200:
                     mode = 'wb'
+                else:
+                    print(f'❌ Ошибка при загрузке `{download.filename}`, status_code = {response.status}')
+                    return False
 
                 with open(file_path, mode) as f:
                     while True:
@@ -80,26 +83,28 @@ class DownloadFile:
                             self.register[download.filename].download_bytes += len(chunk)
                             f.write(chunk)
                         except asyncio.TimeoutError:
-                            raise
+                            if file_path.exists():
+                                os.remove(file_path)  # удалить битый не загруженный файл
+                            return False
 
                 self.register[download.filename].done = True
-        except Exception as err:
-            print(err)
+        except Exception:  # noqa
+            return False
+        return True
 
     async def download(self, session: aiohttp.client.ClientSession, download: DownloadFileType):
         """Загрузка файлов, с учётом fallback url."""
         exit_for = False
         for url in download.url_list:
             for _ in range(self._attempts):
-                try:
-                    await self._download_file(session, url=url, download=download)
-                    exit_for = True
-                    break
-                except asyncio.TimeoutError:  # время загрузки вышло?
+
+                res = await self._download_file(session, url=url, download=download)
+                # если загрузчик вернул false, то значит не скачалось, Fallback на другой url (если есть)
+                if not res:
                     continue
-                except aiohttp.ClientConnectionError:
-                    continue
-                except Exception:
-                    raise
+                exit_for = True
+                break
             if exit_for:
                 break
+        if not exit_for:
+            raise RuntimeError(f'Не удалось скачать {download.filename}')

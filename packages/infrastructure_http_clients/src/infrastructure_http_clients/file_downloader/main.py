@@ -66,6 +66,15 @@ if __name__ == '__main__':
                 filename='cpython-3.12.14+20260825-x86_64-pc-windows-msvc-install_only.tar.gz',
                 replace=False,
             ),
+            DownloadFileType(
+                url_list=[
+                    'https://alphacephei.com/vosk/models/vosk-model-small-en-us-0.15.zip',
+                    'https://github.com/Mike2024New/STT_OFFLINE/releases/download/v1.1.0/vosk-model-small-en-us-0.15.zip',
+                ],
+                target_dir=Path.cwd() / 'models' / 'vosk',
+                filename='vosk-model-small-en-us-0.15.zip',
+                replace=False,
+            ),
         ]
         await file_downloader(download_list=download_list, console_progress_bar=True)
 
