@@ -42,6 +42,7 @@
 9. [Other](packages/infrastructure_other/README.md) - прочие утилиты, которые не вошли ни в одну из категорий.
 10. [process-utils](packages/infrastructure_process_utils/README.md) - вспомогательные утилиты по управлению процессами.
 11. [streaming](packages/infrastructure_streaming/README.md) - набор стриминговых клиентов
+12. [tk_ui](packages/infrastructure_tk_ui/README.md) - набор виджетов для быстрого создания ui интефейсов
 
 ---
 
