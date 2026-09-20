@@ -1,5 +1,6 @@
+import random
 from infrastructure_tk_ui import RootWidget, LabelWidget, PackParameters, ButtonWidget
-from infrastructure_tk_ui import TextAreaWidget, ScrollableWidget
+from infrastructure_tk_ui import TextAreaWidget, ScrollableWidget, ProgressWidget
 from infrastructure_tk_ui import FontParameters, FrameWidget
 
 """
@@ -138,8 +139,39 @@ def ex4():
     window.form.mainloop()
 
 
+def ex5():
+    """Пример работы с прогесс баром."""
+
+    class Window:
+        def __init__(self):
+            self._window = RootWidget(
+                title='window', size=(200, 100), offset=(1200, 300), resize_width=True, resize_height=True
+            )
+
+            self._frame = FrameWidget(frame=self._window.form, border=0)
+            self._progress = ProgressWidget(frame=self._frame.form, border=1, label_text='установка пакета')
+
+        def _progress_imitation(self, i=0):
+            """Просто иммитация прогресс бара"""
+            if i > 100:
+                self._progress.close()
+                return
+            self._progress.set_value(i)
+            self._window.form.after(random.randint(20, 60), self._progress_imitation, i + 1)
+
+        def start(self):
+            # событие запуска прогресс бара, в данном случае через стартовый callback
+            self._window.form.after(1000, self._progress_imitation)  # noqa
+            self._window.form.mainloop()
+
+    # создание и запуск класса
+    window = Window()
+    window.start()
+
+
 if __name__ == '__main__':
     # ex1()
     # ex2()
     # ex3()
-    ex4()
+    # ex4()
+    ex5()
