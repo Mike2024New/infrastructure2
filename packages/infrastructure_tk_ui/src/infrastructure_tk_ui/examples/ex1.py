@@ -91,7 +91,6 @@ def ex3():
     )
     scrollable = ScrollableWidget(
         frame=frame.form,
-        border=1,
         scrollbar=True,  # добавить полосу с прокруткой
     )
     [LabelWidget(frame=scrollable.form, text=f'label {i}') for i in range(20)]
@@ -206,6 +205,6 @@ def ex5():
 if __name__ == '__main__':
     # ex1()
     # ex2()
-    # ex3()
+    ex3()
     # ex4()
-    ex5()
+    # ex5()

@@ -1,5 +1,4 @@
 from infrastructure_tk_ui.parameters_class import PackParameters
-from infrastructure_tk_ui.widgets.frame_widget import FrameWidget
 from dataclasses import dataclass, field
 from typing import Literal
 import tkinter as tk
@@ -9,7 +8,6 @@ import tkinter as tk
 class ScrollableWidget:
     frame: tk.Tk | tk.Frame | tk.Toplevel  # поле на котором будут прокручиваемые элементы
     back_color: str | None = None  # Цвет фона, подложки, если пустой то возьмется цвет родителя
-    border: int = 0  # толщина бордеров
     border_relief: Literal['solid', 'ridge', 'flat', 'groove', 'raised', 'sunken'] = 'solid'  # форма бордеров
     pack_parameters: PackParameters = field(default_factory=PackParameters)
     scrollbar: bool = False  # добавление скролл бара со стрелочками
@@ -24,17 +22,15 @@ class ScrollableWidget:
         # взять цвет родительского окна, если не передан
         self.back_color = self.back_color if self.back_color is not None else self.frame.cget('bg')
 
-        self._scroll_container = FrameWidget(
-            frame=self.frame,
-            back_color=self.back_color,
-            border=self.border,
-            border_relief=self.border_relief,
-            pack_parameters=PackParameters(expand=True, fill='both'),
-        )
-        canvas = tk.Canvas(self._scroll_container.form)
+        # canvas, окно поддерживающее прокрутку
+        canvas = tk.Canvas(self.frame)
+
         if self.scrollbar:
-            scrollbar = tk.Scrollbar(self._scroll_container.form, orient='vertical', command=canvas.yview)
+            scrollbar = tk.Scrollbar(self.frame, orient='vertical', command=canvas.yview)
             scrollbar.pack(side='right', fill='y')
+            # отключить встроенный обработчик MouseWheel у Scrollbar (иначе tkinter выдает ошибку)
+            scrollbar.bind('<MouseWheel>', lambda e: 'break')
+
         canvas.configure(
             bg=self.back_color,
             bd=0,  # рамку рисует внешний FrameWidget
@@ -50,13 +46,17 @@ class ScrollableWidget:
             '<Configure>',
             lambda event: canvas.itemconfig(window_id, width=event.width),
         )
-        # обновлять scrollregion при изменении размеров фрейма
+        # обновлять scrollregion (подстройка под изменение размеров фрейма)
         self._form.bind(
             '<Configure>',
             lambda event: canvas.configure(scrollregion=canvas.bbox('all')),
         )
-        # скролл колесом
-        canvas.bind_all(
-            '<MouseWheel>',
-            lambda event: canvas.yview_scroll(int(-1 * (event.delta / 120)), 'units'),
-        )
+
+        # # скролл колесом
+        def on_wheel(event):
+            if self.scrollbar and event.widget == scrollbar:
+                return
+            canvas.yview_scroll(int(-1 * (event.delta / 120)), 'units')
+
+        canvas.bind('<Enter>', lambda e: canvas.bind_all('<MouseWheel>', on_wheel))
+        canvas.bind('<Leave>', lambda e: canvas.unbind_all('<MouseWheel>'))

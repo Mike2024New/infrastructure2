@@ -1,4 +1,4 @@
-from infrastructure_tk_ui.parameters_class import PackParameters, FontParameters
+from infrastructure_tk_ui.parameters_class import PackParameters, FontParameters, AnimationParameters
 from dataclasses import dataclass, field
 from typing import Literal, Callable
 import tkinter as tk
@@ -16,6 +16,7 @@ class ButtonWidget:
     anchor: Literal['center', 'e', 'n', 'nw', 's', 'se', 'sw', 'w'] = 'nw'  # стартовая точка виджета (например север)
     font_parameters: FontParameters = field(default_factory=FontParameters)
     pack_parameters: PackParameters = field(default_factory=PackParameters)
+    animation_parameters: AnimationParameters | None = None  # параметры анимации виджета
     callback: Callable | None = None
     _form: tk.Button | None = None
 
@@ -41,4 +42,9 @@ class ButtonWidget:
             anchor=self.anchor,
             highlightthickness=0,  # убрать подсветку (потом можно будет вынести в параметры, пока просто убрать)
         )
+
+        # подключить self.animation_parameters, если он был передан (цвета при наведении и активации)
+        if self.animation_parameters is not None:
+            self.animation_parameters.bind(back_color=self.back_color, frame=self._form)
+
         self._form.pack(**self.pack_parameters.get())
