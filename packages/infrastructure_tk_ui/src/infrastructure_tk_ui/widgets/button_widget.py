@@ -24,9 +24,9 @@ class ButtonWidget:
         return self._form
 
     def __post_init__(self):
-
         # взять цвет родительского окна, если не передан
         self.back_color = self.back_color if self.back_color is not None else self.frame.cget('bg')
+        font_style = self.font_parameters.get()
 
         self._form = tk.Button(self.frame, command=self.callback or (lambda: None))
         self._form.configure(
@@ -35,8 +35,8 @@ class ButtonWidget:
             bd=self.border,
             bg=self.back_color,
             activebackground=self.active_back_color,
-            fg=self.font_parameters.font_color,
-            font=(self.font_parameters.font_family, self.font_parameters.font_size, self.font_parameters.font_style),
+            fg=font_style.color,
+            font=(font_style.family, font_style.size, font_style.style),
             justify=self.justify,
             anchor=self.anchor,
             highlightthickness=0,  # убрать подсветку (потом можно будет вынести в параметры, пока просто убрать)

@@ -1,15 +1,44 @@
 from dataclasses import dataclass
 from typing import Literal
 
-__all__ = ['FontParameters', 'PackParameters']
+__all__ = ['FontParameters', 'PackParameters', 'FontResult']
+
+
+@dataclass
+class FontResult:
+    color: str
+    family: str
+    size: int
+    style: str
 
 
 @dataclass
 class FontParameters:
-    font_color: str = 'black'  # цвет шрифта
-    font_family: str = 'Arial'
-    font_size: int = 14
-    font_style: Literal['normal', 'italic', 'bold'] = 'normal'
+    color: str = 'black'  # цвет шрифта
+    family: str = 'Arial'
+    size: int = 14
+    bold: bool = False
+    italic: bool = False
+    underline: bool = False
+    overstrike: bool = False
+    style: str | None = None  # задать стиль на прямую, например "bold italic"
+
+    def get(self) -> FontResult:
+        if self.style is not None:
+            style = self.style
+        else:
+            styles = []
+            if self.bold:
+                styles.append('bold')
+            if self.italic:
+                styles.append('italic')
+            if self.underline:
+                styles.append('underline')
+            if self.overstrike:
+                styles.append('overstrike')
+            style = ' '.join(styles) if styles else 'normal'
+
+        return FontResult(color=self.color, family=self.family, size=self.size, style=style)
 
 
 @dataclass

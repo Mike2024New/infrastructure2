@@ -55,7 +55,7 @@ def ex2():
         text='example',
         frame=frame.form,
         pack_parameters=PackParameters(fill='x', expand=False),
-        font_parameters=FontParameters(font_color='black', font_size=14, font_style='bold', font_family='mono'),
+        font_parameters=FontParameters(color='black', size=14, style='bold', family='mono'),
     )
     # размещение text_area виджета на рамке (_text_area объект для обратной связи с классом производителем, form базовые методы tkinter)
     text_area = TextAreaWidget(
@@ -64,7 +64,7 @@ def ex2():
         size=(50, 2),  # высота в строках (задаваемых в font)
         wrap='word',
         pack_parameters=PackParameters(fill='both', expand=True),
-        font_parameters=FontParameters(font_size=14)
+        font_parameters=FontParameters(size=14)
     )
     # размещение button виджета на рамке (_button объект для обратной связи с классом производителем, form базовые методы tkinter)
     # связка text_area и button
@@ -111,7 +111,7 @@ def ex4():
     frame = FrameWidget(frame=window.form, border=1)
     text_area = TextAreaWidget(frame=frame.form, size=(30, 5), editable=False)
     text_area.insert_text(text='Вы хотите установить приложение?')
-    font_parameters = FontParameters(font_size=12, font_style='bold')
+    font_parameters = FontParameters(size=12, style='bold')
     pack_parameters = PackParameters(expand=True, side='left')
 
     def modal_window(text: str):
@@ -163,7 +163,7 @@ def ex5():
             self._running = True
             # построение прогресс бара. Задается рамка, за тем на ней уже размещаются виджеты
             self._progress_frame = FrameWidget(frame=self._window.form, border=1)
-            font_parameters = FontParameters(font_size=10)
+            font_parameters = FontParameters(size=10)
             # можно не создавать переменую если не нужна обратная связь
             LabelWidget(
                 frame=self._progress_frame.form,
