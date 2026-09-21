@@ -1,4 +1,5 @@
-from infrastructure_tk_ui.parameters_class import PackParameters, FontParameters, AnimationParameters
+from infrastructure_tk_ui.parameters_class import PackParameters, FontParameters
+from infrastructure_tk_ui.parameters_class import AnimationParameters, BorderParameters
 from dataclasses import dataclass, field
 from typing import Literal, Callable
 import tkinter as tk
@@ -9,13 +10,13 @@ class ButtonWidget:
     frame: tk.Tk | tk.Frame | tk.Toplevel
     text: str = 'button'
     size: tuple[int, int] = (0, 0)  # размер окна, если 0, то размер будет автоматически подогнан по содержимому
-    border: int = 1  # толщина бордеров
     back_color: str | None = None  # Цвет фона, подложки, если пустой то возьмется цвет родителя
+    border_parameters: BorderParameters = field(default_factory=BorderParameters)  # параметры бордеров
     active_back_color: str = 'gray'  # цвет кнопки если нажат
     justify: Literal['left', 'right', 'center'] = 'left'  # выравнивание текста слева, важно учитывать
     anchor: Literal['center', 'e', 'n', 'nw', 's', 'se', 'sw', 'w'] = 'nw'  # стартовая точка виджета (например север)
     font_parameters: FontParameters = field(default_factory=FontParameters)
-    pack_parameters: PackParameters = field(default_factory=PackParameters)
+    pack_parameters: PackParameters | None = field(default_factory=PackParameters)
     animation_parameters: AnimationParameters | None = None  # параметры анимации виджета
     callback: Callable | None = None
     _form: tk.Button | None = None
@@ -33,7 +34,8 @@ class ButtonWidget:
         self._form.configure(
             text=self.text,
             width=self.size[0], height=self.size[1],
-            bd=self.border,
+            border=self.border_parameters.th,
+            relief=self.border_parameters.relief,
             bg=self.back_color,
             activebackground=self.active_back_color,
             fg=font_style.color,
@@ -45,6 +47,6 @@ class ButtonWidget:
 
         # подключить self.animation_parameters, если он был передан (цвета при наведении и активации)
         if self.animation_parameters is not None:
-            self.animation_parameters.bind(back_color=self.back_color, frame=self._form)
+            self.animation_parameters.bind(back_color=self.back_color, form=self._form)
 
         self._form.pack(**self.pack_parameters.get())

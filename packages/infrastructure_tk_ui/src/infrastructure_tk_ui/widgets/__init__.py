@@ -6,9 +6,10 @@ from infrastructure_tk_ui.widgets.label_widget import LabelWidget
 from infrastructure_tk_ui.widgets.text_area_widget import TextAreaWidget
 from infrastructure_tk_ui.widgets.progress_bar_widget import ProgressWidget
 from infrastructure_tk_ui.widgets.entry_widget import EntryWidget
+from infrastructure_tk_ui.widgets.combobox_widget import ComboboxWidget
 
 __all__ = [
     'FrameWidget', 'ScrollableWidget', 'ButtonWidget',
     'RootWidget', 'LabelWidget', 'TextAreaWidget',
-    'ProgressWidget', 'EntryWidget',
+    'ProgressWidget', 'EntryWidget', 'ComboboxWidget',
 ]

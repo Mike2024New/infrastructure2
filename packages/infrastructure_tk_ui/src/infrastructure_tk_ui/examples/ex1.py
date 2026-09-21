@@ -1,7 +1,8 @@
 import random
-from infrastructure_tk_ui import RootWidget, LabelWidget, PackParameters, ButtonWidget
+from infrastructure_tk_ui import RootWidget, LabelWidget, ButtonWidget
 from infrastructure_tk_ui import TextAreaWidget, ScrollableWidget, ProgressWidget
-from infrastructure_tk_ui import FontParameters, FrameWidget
+from infrastructure_tk_ui import FrameWidget
+from infrastructure_tk_ui import FontParameters, PackParameters, BorderParameters
 
 """
 Примеры с демонстрацией наиболее частых ситуаций и как работает.
@@ -82,7 +83,7 @@ def ex3():
     )
     frame = FrameWidget(
         frame=root.form,  # форма на которой размещается
-        border=1,
+        border_parameters=BorderParameters(th=1, relief='ridge'),
         pack_parameters=PackParameters(
             fill='both',  # для рамки лучше both (x, y)
             expand=True,  # растянуть на всю свободную и доступную область
@@ -107,7 +108,7 @@ def ex4():
         back_color='orange',  # если в дочерних виджетах не переопределять это поле то цвет возьмется этот по умолчанию
         resize_width=False, resize_height=False
     )
-    frame = FrameWidget(frame=window.form, border=1)
+    frame = FrameWidget(frame=window.form, border_parameters=BorderParameters(th=1, relief='ridge'))
     text_area = TextAreaWidget(frame=frame.form, size=(30, 5), editable=False)
     text_area.insert_text(text='Вы хотите установить приложение?')
     font_parameters = FontParameters(size=12, style='bold')
@@ -121,7 +122,11 @@ def ex4():
             title='А я точно уверен?', offset=(1200, 300),
             back_color=back_color, parent=window.form, modal=True,  # установка свойств дочернего окна
         )
-        fr = FrameWidget(frame=mod_win.form, border=1, back_color=back_color)
+        fr = FrameWidget(
+            frame=mod_win.form,
+            border_parameters=BorderParameters(th=1, relief='ridge'),
+            back_color=back_color
+        )
         ta = TextAreaWidget(frame=fr.form, size=(30, 5), editable=False)
         ta.insert_text(text=text)
         if counter <= 2:
@@ -161,7 +166,9 @@ def ex5():
             )
             self._running = True
             # построение прогресс бара. Задается рамка, за тем на ней уже размещаются виджеты
-            self._progress_frame = FrameWidget(frame=self._window.form, border=1)
+            self._progress_frame = FrameWidget(
+                frame=self._window.form, border_parameters=BorderParameters(th=1, relief='ridge')
+            )
             font_parameters = FontParameters(size=10)
             # можно не создавать переменую если не нужна обратная связь
             LabelWidget(
@@ -205,6 +212,6 @@ def ex5():
 if __name__ == '__main__':
     # ex1()
     # ex2()
-    ex3()
-    # ex4()
+    # ex3()
+    ex4()
     # ex5()

@@ -1,4 +1,4 @@
-from infrastructure_tk_ui.parameters_class import PackParameters, FontParameters, AnimationParameters
+from infrastructure_tk_ui.parameters_class import PackParameters, FontParameters, AnimationParameters, BorderParameters
 from dataclasses import dataclass, field
 from typing import Literal
 import tkinter as tk
@@ -10,10 +10,8 @@ class TextAreaWidget:
     text: str = ''
     size: tuple[int, int] = (0, 0)  # размер окна, ширина(игнорируется если expand), и высота в строках
     back_color: str | None = None  # Цвет фона, подложки, если пустой то возьмется цвет родителя
-    select_text_back_color: str = 'steelblue'  # цвет выделенного текста
-    border: int = 0  # толщина бордеров
-    border_relief: Literal['solid', 'ridge', 'flat', 'groove', 'raised', 'sunken'] = 'solid'  # форма бордеров
     wrap: Literal['word', 'none', 'char'] = 'word'
+    border_parameters: BorderParameters = field(default_factory=BorderParameters)  # параметры бордеров
     font_parameters: FontParameters = field(default_factory=FontParameters)  # параметры шрифта
     pack_parameters: PackParameters = field(default_factory=PackParameters)  # параметры позиционирования виджета
     animation_parameters: AnimationParameters | None = None  # параметры анимации виджета
@@ -32,17 +30,19 @@ class TextAreaWidget:
         self._form = tk.Text(self.frame)
         self._form.configure(
             bg=self.back_color,
+            border=self.border_parameters.th,
+            relief=self.border_parameters.relief,
             width=self.size[0], height=self.size[1],
             fg=font_style.color,
             font=(font_style.family, font_style.size, font_style.style),
             wrap=self.wrap, state='normal' if self.editable else 'disabled',
             highlightthickness=0,  # убрать подсветку (потом можно будет вынести в параметры, пока просто убрать)
             insertwidth=2,  # ширина курсора
-            selectbackground=self.select_text_back_color,
+            selectbackground=self.font_parameters.select_text_back_color,
         )
         # подключить self.animation_parameters, если он был передан (цвета при наведении и активации)
         if self.animation_parameters is not None:
-            self.animation_parameters.bind(back_color=self.back_color, frame=self._form)
+            self.animation_parameters.bind(back_color=self.back_color, form=self._form)
 
         self._form.pack(**self.pack_parameters.get())
 

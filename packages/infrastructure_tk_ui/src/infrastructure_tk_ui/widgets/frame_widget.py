@@ -1,6 +1,5 @@
-from infrastructure_tk_ui.parameters_class import PackParameters
+from infrastructure_tk_ui.parameters_class import PackParameters, BorderParameters, GridParameters
 from dataclasses import dataclass, field
-from typing import Literal
 import tkinter as tk
 
 
@@ -8,9 +7,9 @@ import tkinter as tk
 class FrameWidget:
     frame: tk.Tk | tk.Frame | tk.Toplevel
     back_color: str | None = None  # Цвет фона, подложки, если пустой то возьмется цвет родителя
-    border: int = 0  # толщина бордеров
-    border_relief: Literal['solid', 'ridge', 'flat', 'groove', 'raised', 'sunken'] = 'solid'  # форма бордеров
-    pack_parameters: PackParameters = field(default_factory=PackParameters)
+    border_parameters: BorderParameters = field(default_factory=BorderParameters)  # параметры бордеров
+    pack_parameters: PackParameters | None = None
+    grid_parameters: GridParameters | None = None
     _form: tk.Frame | None = None
 
     @property
@@ -23,12 +22,23 @@ class FrameWidget:
         self._form = tk.Frame(
             self.frame,
             bg=self.back_color,
-            bd=self.border,
-            relief=self.border_relief,
+            border=self.border_parameters.th,
+            relief=self.border_parameters.relief,
         )
-        self._form.pack(
-            fill=self.pack_parameters.fill,
-            padx=self.pack_parameters.padx,
-            pady=self.pack_parameters.pady,
-            expand=self.pack_parameters.expand,
-        )
+
+        if all(pack is not None for pack in (self.pack_parameters, self.pack_parameters)):
+            raise RuntimeError(f'Выберите что то одно из стратегий размещения')
+        elif self.pack_parameters is not None:
+            self._form.pack(**self.pack_parameters.get())
+        elif self.grid_parameters is not None:
+            # rows, colums = self.frame.grid_size()
+            # if self.grid_parameters.row > rows - 1 or self.grid_parameters.col > colums - 1:
+            #     raise RuntimeError(
+            #         f'Указанная ячейка, находится за пределами родительского окна {rows, colums}'
+            #     )
+            self._form.grid(**self.grid_parameters.get())
+        else:
+            raise RuntimeError(
+                f'Не указана стратегия размещения. '
+                f'Передай либо pack_parameters, либо grid_parameters.'
+            )

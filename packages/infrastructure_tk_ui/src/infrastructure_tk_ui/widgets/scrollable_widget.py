@@ -1,6 +1,5 @@
 from infrastructure_tk_ui.parameters_class import PackParameters
 from dataclasses import dataclass, field
-from typing import Literal
 import tkinter as tk
 
 
@@ -8,7 +7,6 @@ import tkinter as tk
 class ScrollableWidget:
     frame: tk.Tk | tk.Frame | tk.Toplevel  # поле на котором будут прокручиваемые элементы
     back_color: str | None = None  # Цвет фона, подложки, если пустой то возьмется цвет родителя
-    border_relief: Literal['solid', 'ridge', 'flat', 'groove', 'raised', 'sunken'] = 'solid'  # форма бордеров
     pack_parameters: PackParameters = field(default_factory=PackParameters)
     scrollbar: bool = False  # добавление скролл бара со стрелочками
     _form: tk.Frame | None = None

@@ -1,6 +1,7 @@
-from infrastructure_tk_ui import PackParameters, FontParameters, AnimationParameters
+from infrastructure_tk_ui import PackParameters, FontParameters, AnimationParameters, BorderParameters
 from infrastructure_tk_ui import RootWidget, LabelWidget, ButtonWidget
 from infrastructure_tk_ui import EntryWidget, TextAreaWidget, FrameWidget
+from infrastructure_tk_ui import ComboboxWidget
 
 """
 Применение эффектов (фокусировка, наведение) к виджетам. Пока поддерживаются эффекты для:
@@ -28,7 +29,7 @@ def ex1():
         font_parameters=font_parameters,
     )
     EntryWidget(
-        frame=frame.form, border=1,
+        frame=frame.form, border_parameters=BorderParameters(th=1, relief='ridge'),
         animation_parameters=AnimationParameters(active_color='green', hover_color='orange'),
         pack_parameters=PackParameters(side='left', expand=False, fill='y', padx=15, pady=0, ),
         font_parameters=font_parameters,
@@ -59,7 +60,7 @@ def ex2():
     )
     ButtonWidget(
         frame=frame.form, text='ok',
-        back_color='gray', border=0,
+        back_color='gray', border_parameters=BorderParameters(th=1, relief='ridge'),
         pack_parameters=PackParameters(side='left', expand=False, fill='none', padx=0, pady=0, ),
         font_parameters=font_parameters,
         animation_parameters=AnimationParameters(active_color='green', hover_color='orange'),
@@ -68,6 +69,34 @@ def ex2():
     root.form.mainloop()
 
 
+def ex3():
+    root = RootWidget(
+        offset=(1200, 300),
+        back_color='gray',  # если в дочерних виджетах не переопределять это поле то цвет возьмется этот по умолчанию
+    )
+    font_parameters = FontParameters(size=12, family='mono', italic=True, color='green')
+    frame = FrameWidget(
+        frame=root.form,
+        pack_parameters=PackParameters(padx=20, pady=20)
+    )
+    ComboboxWidget(
+        frame=frame.form,
+        values=['ru', 'en', 'de'],
+        default='ru',
+        font_parameters=font_parameters,
+        animation_parameters=AnimationParameters(hover_color='red', active_color='green'),
+        callback=lambda value: print(f'выбран язык: {value}'),
+    )
+    ButtonWidget(
+        frame=frame.form, text='ok',
+        back_color='gray', border_parameters=BorderParameters(th=1, relief='ridge'),
+        pack_parameters=PackParameters(side='left', expand=False, fill='none', padx=0, pady=0, ),
+        font_parameters=font_parameters,
+    )
+    root.form.mainloop()
+
+
 if __name__ == '__main__':
     # ex1()
-    ex2()
+    # ex2()
+    ex3()
