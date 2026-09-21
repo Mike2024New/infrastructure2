@@ -5,8 +5,16 @@ from infrastructure_tk_ui import FontParameters, FrameWidget
 
 """
 Примеры с демонстрацией наиболее частых ситуаций и как работает.
-Основная суть - это обертки, вся логика реализованна в датаклассах.
+Основная суть - это обертки, вся логика реализованна в датаклассах (с удобными и понятными параметрами).
 Нужно просто прописать параметры, и готово формы собраны.
+
+Список примеров:
+    ex1 - создание базового окна root
+    ex2 - работа с основными виджетами
+    ex3 - scrollable окно с прокручиванием
+    ex4 - модальное окно
+    ex5 - прогресс бар 
+
 """
 
 
@@ -14,7 +22,7 @@ def ex1():
     """Создание главного окна, привязка событий."""
     root = RootWidget(
         title='My window',
-        back_color='orange',
+        back_color='orange',  # если в дочерних виджетах не переопределять это поле то цвет возьмется этот
         size=(300, 200),
         offset=(1000, 400),
         resize_width=False, resize_height=False,
@@ -29,10 +37,13 @@ def ex2():
     """
     Пример создания фрейма (области размещения на нем виджетов) и помещение на него основных виджетов
     """
-    root = RootWidget(offset=(1200, 300), back_color='white')
+
+    root = RootWidget(
+        offset=(1200, 300),
+        back_color='gray'  # если в дочерних виджетах не переопределять это поле то цвет возьмется этот
+    )
     frame = FrameWidget(
         frame=root.form,  # форма на которой размещается
-        back_color='gray',
         # border=1,  # если нужно то включить бордер (задав толщину)
         pack_parameters=PackParameters(
             fill='both',  # для рамки лучше both (x, y)
@@ -43,7 +54,6 @@ def ex2():
     _label = LabelWidget(
         text='example',
         frame=frame.form,
-        back_color='gray',  # чтобы он был прозрачным, цвет такой же как у фрейма
         pack_parameters=PackParameters(fill='x', expand=False),
         font_parameters=FontParameters(font_color='black', font_size=14, font_style='bold', font_family='mono'),
     )
@@ -65,10 +75,13 @@ def ex2():
 
 def ex3():
     """Создание scrollable прокручиваемого фрейма, когда элементов много и требуется прокрутка"""
-    root = RootWidget(size=(400, 200), offset=(1200, 300), back_color='white')
+    root = RootWidget(
+        size=(400, 200),
+        offset=(1200, 300),
+        back_color='gray',  # если в дочерних виджетах не переопределять это поле то цвет возьмется этот по умолчанию
+    )
     frame = FrameWidget(
         frame=root.form,  # форма на которой размещается
-        back_color='gray',
         border=1,
         pack_parameters=PackParameters(
             fill='both',  # для рамки лучше both (x, y)
@@ -92,7 +105,7 @@ def ex4():
     window = RootWidget(
         title='Это точно установщик?',
         offset=(1200, 300),
-        back_color='orange',
+        back_color='orange',  # если в дочерних виджетах не переопределять это поле то цвет возьмется этот по умолчанию
         resize_width=False, resize_height=False
     )
     frame = FrameWidget(frame=window.form, border=1)
@@ -145,16 +158,37 @@ def ex5():
     class Window:
         def __init__(self):
             self._window = RootWidget(
-                title='window', size=(200, 100), offset=(1200, 300), resize_width=True, resize_height=True
+                title='window', offset=(1200, 300), resize_width=True, resize_height=True
+            )
+            self._running = True
+            # построение прогресс бара. Задается рамка, за тем на ней уже размещаются виджеты
+            self._progress_frame = FrameWidget(frame=self._window.form, border=1)
+            font_parameters = FontParameters(font_size=10)
+            # можно не создавать переменую если не нужна обратная связь
+            LabelWidget(
+                frame=self._progress_frame.form,
+                text='установка пакета', font_parameters=font_parameters,
+            )  # заголовок
+            self._progress = ProgressWidget(frame=self._progress_frame.form)
+            ButtonWidget(
+                frame=self._progress_frame.form,
+                text='отмена',
+                callback=self._stop,
+                font_parameters=font_parameters
             )
 
-            self._frame = FrameWidget(frame=self._window.form, border=0)
-            self._progress = ProgressWidget(frame=self._frame.form, border=1, label_text='установка пакета')
+        def _stop(self):
+            self._running = False
+            self._progress.close()
+            self._progress_frame.form.destroy()
+            self._window.form.destroy()
 
         def _progress_imitation(self, i=0):
             """Просто иммитация прогресс бара"""
+            if not self._running:
+                return
             if i > 100:
-                self._progress.close()
+                self._stop()
                 return
             self._progress.set_value(i)
             self._window.form.after(random.randint(20, 60), self._progress_imitation, i + 1)

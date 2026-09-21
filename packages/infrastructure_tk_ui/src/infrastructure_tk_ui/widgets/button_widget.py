@@ -10,7 +10,7 @@ class ButtonWidget:
     text: str = 'button'
     size: tuple[int, int] = (0, 0)  # размер окна, если 0, то размер будет автоматически подогнан по содержимому
     border: int = 1  # толщина бордеров
-    back_color: str = 'gray'  # цвет фона подложки (можно по родительскому окну)
+    back_color: str | None = None  # Цвет фона, подложки, если пустой то возьмется цвет родителя
     active_back_color: str = 'gray'  # цвет кнопки если нажат
     justify: Literal['left', 'right', 'center'] = 'left'  # выравнивание текста слева, важно учитывать
     anchor: Literal['center', 'e', 'n', 'nw', 's', 'se', 'sw', 'w'] = 'nw'  # стартовая точка виджета (например север)
@@ -24,6 +24,10 @@ class ButtonWidget:
         return self._form
 
     def __post_init__(self):
+
+        # взять цвет родительского окна, если не передан
+        self.back_color = self.back_color if self.back_color is not None else self.frame.cget('bg')
+
         self._form = tk.Button(self.frame, command=self.callback or (lambda: None))
         self._form.configure(
             text=self.text,

@@ -9,7 +9,7 @@ class TextAreaWidget:
     frame: tk.Tk | tk.Frame | tk.Toplevel
     text: str = ''
     size: tuple[int, int] = (0, 0)  # размер окна, ширина(игнорируется если expand), и высота в строках
-    back_color: str = 'gray'  # цвет фона подложки (можно по родительскому окну)
+    back_color: str | None = None  # Цвет фона, подложки, если пустой то возьмется цвет родителя
     border: int = 1  # толщина бордеров
     border_relief: Literal['solid', 'ridge', 'flat', 'groove', 'raised', 'sunken'] = 'solid'  # форма бордеров
     wrap: Literal['word', 'none', 'char'] = 'word'
@@ -25,6 +25,8 @@ class TextAreaWidget:
         return self._form
 
     def __post_init__(self):
+        # взять цвет родительского окна, если не передан
+        self.back_color = self.back_color if self.back_color is not None else self.frame.cget('bg')
         self._form = tk.Text(self.frame)
         self._form.configure(
             width=self.size[0], height=self.size[1],

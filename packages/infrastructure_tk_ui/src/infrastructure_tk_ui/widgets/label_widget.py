@@ -8,7 +8,7 @@ import tkinter as tk
 class LabelWidget:
     frame: tk.Tk | tk.Frame | tk.Toplevel
     text: str = 'label'
-    back_color: str = 'gray'  # цвет фона подложки (можно по родительскому окну)
+    back_color: str | None = None  # Цвет фона, подложки, если пустой то возьмется цвет родителя
     justify: Literal['left', 'right', 'center'] = 'left'  # выравнивание текста слева, важно учитывать
     anchor: Literal['center', 'e', 'n', 'nw', 's', 'se', 'sw', 'w'] = 'nw'  # стартовая точка виджета (например север)
     font_parameters: FontParameters = field(default_factory=FontParameters)
@@ -21,6 +21,8 @@ class LabelWidget:
 
     def __post_init__(self):
         """Размещение label на форме"""
+        # взять цвет родительского окна, если не передан
+        self.back_color = self.back_color if self.back_color is not None else self.frame.cget('bg')
 
         self._form = tk.Label(
             self.frame,

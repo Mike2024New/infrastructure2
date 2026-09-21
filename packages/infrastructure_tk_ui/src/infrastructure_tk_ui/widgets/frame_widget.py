@@ -7,7 +7,7 @@ import tkinter as tk
 @dataclass
 class FrameWidget:
     frame: tk.Tk | tk.Frame | tk.Toplevel
-    back_color: str = 'gray'  # цвет фона подложки (можно по родительскому окну)
+    back_color: str | None = None  # Цвет фона, подложки, если пустой то возьмется цвет родителя
     border: int = 0  # толщина бордеров
     border_relief: Literal['solid', 'ridge', 'flat', 'groove', 'raised', 'sunken'] = 'solid'  # форма бордеров
     pack_parameters: PackParameters = field(default_factory=PackParameters)
@@ -18,6 +18,8 @@ class FrameWidget:
         return self._form
 
     def __post_init__(self):
+        # взять цвет родительского окна, если не передан
+        self.back_color = self.back_color if self.back_color is not None else self.frame.cget('bg')
         self._form = tk.Frame(
             self.frame,
             bg=self.back_color,
