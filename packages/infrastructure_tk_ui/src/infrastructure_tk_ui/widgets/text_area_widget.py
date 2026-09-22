@@ -1,20 +1,18 @@
-from infrastructure_tk_ui.parameters_class import PackParameters, FontParameters, AnimationParameters, BorderParameters
-from dataclasses import dataclass, field
+from infrastructure_tk_ui.parameters_class import PackParameters, StyleParameters, GridParameters
+import infrastructure_tk_ui.widget_helpers as widget_helpers
+from dataclasses import dataclass
 from typing import Literal
 import tkinter as tk
 
 
 @dataclass
 class TextAreaWidget:
-    frame: tk.Tk | tk.Frame | tk.Toplevel
-    text: str = ''
+    parent: tk.Tk | tk.Frame | tk.Toplevel
+    placement_strategy: PackParameters | GridParameters  # способ размещения, grid, pack
+    text: str = 'label'
+    style_parameters: StyleParameters | None = None  # параметры стилей виджета
     size: tuple[int, int] = (0, 0)  # размер окна, ширина(игнорируется если expand), и высота в строках
-    back_color: str | None = None  # Цвет фона, подложки, если пустой то возьмется цвет родителя
     wrap: Literal['word', 'none', 'char'] = 'word'
-    border_parameters: BorderParameters = field(default_factory=BorderParameters)  # параметры бордеров
-    font_parameters: FontParameters = field(default_factory=FontParameters)  # параметры шрифта
-    pack_parameters: PackParameters = field(default_factory=PackParameters)  # параметры позиционирования виджета
-    animation_parameters: AnimationParameters | None = None  # параметры анимации виджета
     editable: bool = True  # разрешить редактировать поле виджета?
     _form: tk.Text | None = None
 
@@ -23,28 +21,27 @@ class TextAreaWidget:
         return self._form
 
     def __post_init__(self):
-        # взять цвет родительского окна, если не передан
-        self.back_color = self.back_color if self.back_color is not None else self.frame.cget('bg')
-        font_style = self.font_parameters.get()
-
-        self._form = tk.Text(self.frame)
+        self._form = tk.Text(self.parent)
         self._form.configure(
-            bg=self.back_color,
-            border=self.border_parameters.th,
-            relief=self.border_parameters.relief,
             width=self.size[0], height=self.size[1],
-            fg=font_style.color,
-            font=(font_style.family, font_style.size, font_style.style),
             wrap=self.wrap, state='normal' if self.editable else 'disabled',
-            highlightthickness=0,  # убрать подсветку (потом можно будет вынести в параметры, пока просто убрать)
-            insertwidth=2,  # ширина курсора
-            selectbackground=self.font_parameters.select_text_back_color,
         )
-        # подключить self.animation_parameters, если он был передан (цвета при наведении и активации)
-        if self.animation_parameters is not None:
-            self.animation_parameters.bind(back_color=self.back_color, form=self._form)
 
-        self._form.pack(**self.pack_parameters.get())
+        # подключить стили (опционально)
+        if self.style_parameters is not None:
+            widget_helpers.StyleHandler(
+                parent=self.parent,
+                form=self._form,
+                parameters=self.style_parameters,
+            )
+
+        # размещение виджета (обязательно)
+        widget_helpers.placement_widget_to_parent(
+            widget=self._form,
+            placement_strategy=self.placement_strategy,
+        )
+        if self.text:
+            self.insert_text(text=self.text)
 
     def insert_text(self, text: str) -> None:
         if self._form and text:

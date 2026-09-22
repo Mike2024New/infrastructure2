@@ -1,23 +1,17 @@
-from infrastructure_tk_ui.parameters_class import PackParameters, FontParameters
-from infrastructure_tk_ui.parameters_class import AnimationParameters, BorderParameters
-from dataclasses import dataclass, field
-from typing import Literal, Callable
+from infrastructure_tk_ui.parameters_class import PackParameters, GridParameters
+from infrastructure_tk_ui.parameters_class import StyleParameters
+import infrastructure_tk_ui.widget_helpers as widget_helpers
+from dataclasses import dataclass
 import tkinter as tk
+from typing import Callable
 
 
 @dataclass
 class ButtonWidget:
-    frame: tk.Tk | tk.Frame | tk.Toplevel
-    text: str = 'button'
-    size: tuple[int, int] = (0, 0)  # размер окна, если 0, то размер будет автоматически подогнан по содержимому
-    back_color: str | None = None  # Цвет фона, подложки, если пустой то возьмется цвет родителя
-    border_parameters: BorderParameters = field(default_factory=BorderParameters)  # параметры бордеров
-    active_back_color: str = 'gray'  # цвет кнопки если нажат
-    justify: Literal['left', 'right', 'center'] = 'left'  # выравнивание текста слева, важно учитывать
-    anchor: Literal['center', 'e', 'n', 'nw', 's', 'se', 'sw', 'w'] = 'nw'  # стартовая точка виджета (например север)
-    font_parameters: FontParameters = field(default_factory=FontParameters)
-    pack_parameters: PackParameters | None = field(default_factory=PackParameters)
-    animation_parameters: AnimationParameters | None = None  # параметры анимации виджета
+    parent: tk.Tk | tk.Frame | tk.Toplevel
+    placement_strategy: PackParameters | GridParameters  # способ размещения, grid, pack
+    text: str = 'label'
+    style_parameters: StyleParameters | None = None  # параметры стилей виджета
     callback: Callable | None = None
     _form: tk.Button | None = None
 
@@ -26,27 +20,21 @@ class ButtonWidget:
         return self._form
 
     def __post_init__(self):
-        # взять цвет родительского окна, если не передан
-        self.back_color = self.back_color if self.back_color is not None else self.frame.cget('bg')
-        font_style = self.font_parameters.get()
-
-        self._form = tk.Button(self.frame, command=self.callback or (lambda: None))
+        self._form = tk.Button(self.parent, text=self.text, command=self.callback or (lambda: None))
         self._form.configure(
-            text=self.text,
-            width=self.size[0], height=self.size[1],
-            border=self.border_parameters.th,
-            relief=self.border_parameters.relief,
-            bg=self.back_color,
-            activebackground=self.active_back_color,
-            fg=font_style.color,
-            font=(font_style.family, font_style.size, font_style.style),
-            justify=self.justify,
-            anchor=self.anchor,
-            highlightthickness=0,  # убрать подсветку (потом можно будет вынести в параметры, пока просто убрать)
+            cursor='hand2',
         )
 
-        # подключить self.animation_parameters, если он был передан (цвета при наведении и активации)
-        if self.animation_parameters is not None:
-            self.animation_parameters.bind(back_color=self.back_color, form=self._form)
+        # подключить стили (опционально)
+        if self.style_parameters is not None:
+            widget_helpers.StyleHandler(
+                parent=self.parent,
+                form=self._form,
+                parameters=self.style_parameters,
+            )
 
-        self._form.pack(**self.pack_parameters.get())
+        # размещение виджета (обязательно)
+        widget_helpers.placement_widget_to_parent(
+            widget=self._form,
+            placement_strategy=self.placement_strategy,
+        )

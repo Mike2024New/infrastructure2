@@ -1,24 +1,31 @@
 from infrastructure_tk_ui.parameters_class import PackParameters, StyleParameters, GridParameters
 import infrastructure_tk_ui.widget_helpers as widget_helpers
 from dataclasses import dataclass
+from typing import Callable
 import tkinter as tk
 
 
 @dataclass
-class EntryWidget:
+class CheckBoxWidget:
     parent: tk.Tk | tk.Frame | tk.Toplevel
     placement_strategy: PackParameters | GridParameters  # способ размещения, grid, pack
-    text: str = 'label'
+    text: str = 'checkbox'
     style_parameters: StyleParameters | None = None  # параметры стилей виджета
-    editable: bool = True  # разрешить редактирование?
-    _form: tk.Entry | None = None
+    callback: Callable | None = None
+    _form: tk.Checkbutton | None = None
+    _is_active: tk.BooleanVar = False
 
     @property
     def form(self):
         return self._form
 
     def __post_init__(self):
-        self._form = tk.Entry(self.parent)
+        self._form = tk.Checkbutton(self.parent)
+        self._is_active = tk.BooleanVar()
+        self._form.configure(
+            text=self.text,
+            variable=self._is_active,
+        )
 
         # подключить стили (опционально)
         if self.style_parameters is not None:
@@ -33,25 +40,9 @@ class EntryWidget:
             widget=self._form,
             placement_strategy=self.placement_strategy,
         )
-        if self.text:
-            self.insert_text(text=self.text)
 
-    def insert_text(self, text: str) -> None:
-        if self._form and text:
-            if not self.editable:
-                self._form.configure(state='normal')
-            self._form.insert(tk.END, text)
-            if not self.editable:
-                self._form.configure(state='disabled')
+    def get_value(self):
+        return self._is_active.get()
 
-    def clear_text(self) -> None:
-        if not self._form:
-            return
-        if not self.editable:
-            self._form.configure(state='normal')
-        self._form.delete(0, tk.END)
-        if not self.editable:
-            self._form.configure(state='disabled')
-
-    def get_text(self) -> str:
-        return self._form.get()
+    def set_value(self, val: bool):
+        self._is_active.set(value=val)

@@ -1,15 +1,15 @@
-from infrastructure_tk_ui.parameters_class import PackParameters, BorderParameters, GridParameters
-from dataclasses import dataclass, field
+from infrastructure_tk_ui.parameters_class import PackParameters, StyleParameters, GridParameters
+import infrastructure_tk_ui.widget_helpers as widget_helpers
+from dataclasses import dataclass
 import tkinter as tk
 
 
 @dataclass
 class FrameWidget:
-    frame: tk.Tk | tk.Frame | tk.Toplevel
-    back_color: str | None = None  # Цвет фона, подложки, если пустой то возьмется цвет родителя
-    border_parameters: BorderParameters = field(default_factory=BorderParameters)  # параметры бордеров
-    pack_parameters: PackParameters | None = None
-    grid_parameters: GridParameters | None = None
+    parent: tk.Tk | tk.Frame | tk.Toplevel
+    placement_strategy: PackParameters | GridParameters  # способ размещения, grid, pack
+    style_parameters: StyleParameters | None = None  # параметры стилей виджета
+    grid_map: tuple[tuple[int, ...], tuple[int, ...]] | None = None  # схема сетки в % например: ((30, 60), (50, 50))
     _form: tk.Frame | None = None
 
     @property
@@ -17,28 +17,33 @@ class FrameWidget:
         return self._form
 
     def __post_init__(self):
-        # взять цвет родительского окна, если не передан
-        self.back_color = self.back_color if self.back_color is not None else self.frame.cget('bg')
-        self._form = tk.Frame(
-            self.frame,
-            bg=self.back_color,
-            border=self.border_parameters.th,
-            relief=self.border_parameters.relief,
+        self._form = tk.Frame(self.parent)
+
+        # подключить стили (опционально)
+        if self.style_parameters is not None:
+            widget_helpers.StyleHandler(
+                parent=self.parent,
+                form=self._form,
+                parameters=self.style_parameters,
+            )
+
+        # размещение виджета (обязательно)
+        widget_helpers.placement_widget_to_parent(
+            widget=self._form,
+            placement_strategy=self.placement_strategy,
         )
 
-        if all(pack is not None for pack in (self.pack_parameters, self.pack_parameters)):
-            raise RuntimeError(f'Выберите что то одно из стратегий размещения')
-        elif self.pack_parameters is not None:
-            self._form.pack(**self.pack_parameters.get())
-        elif self.grid_parameters is not None:
-            # rows, colums = self.frame.grid_size()
-            # if self.grid_parameters.row > rows - 1 or self.grid_parameters.col > colums - 1:
-            #     raise RuntimeError(
-            #         f'Указанная ячейка, находится за пределами родительского окна {rows, colums}'
-            #     )
-            self._form.grid(**self.grid_parameters.get())
-        else:
-            raise RuntimeError(
-                f'Не указана стратегия размещения. '
-                f'Передай либо pack_parameters, либо grid_parameters.'
-            )
+        if self.grid_map:
+            # деление главного окна на ячейки (grid)
+            # строки (лучше взять за правило, что все составляет часть от 100%, и делить так чтобы в сумме 100)
+            rows, columns = self.grid_map
+
+            if sum(rows) > 100 or sum(columns) > 100:
+                raise RuntimeError(f'Сумма значений карты ячеек должно быть не больше 100 (для каждой оси)')
+
+            for i, row_height in enumerate(rows):
+                self._form.grid_rowconfigure(i, weight=row_height)
+
+            # строки (лучше взять за правило, что все составляет часть от 100%, и делить так чтобы в сумме 100)
+            for i, column_height in enumerate(columns):
+                self._form.grid_columnconfigure(i, weight=column_height)

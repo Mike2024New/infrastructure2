@@ -8,7 +8,7 @@ class RootWidget:
     title: str = 'window'  # заголовок окна
     size: tuple[int, int] = (0, 0)  # размер окна, если 0, то размер будет автоматически подогнан по содержимому
     offset: tuple[int, int] = (0, 0)  # смещение верхнего левого угла окна относительно верхнего левого угла экрана
-    back_color: str = 'gray'  # фоновый цвет
+    back_color: str = 'white'  # фоновый цвет
     grid_map: tuple[tuple[int, ...], tuple[int, ...]] | None = None  # схема сетки в % например: ((30, 60), (50, 50))
     border_parameters: BorderParameters = field(default_factory=BorderParameters)  # параметры бордеров
     resize_width: bool = False  # можно растягивать по x?
