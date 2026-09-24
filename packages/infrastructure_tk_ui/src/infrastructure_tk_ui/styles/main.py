@@ -1,91 +1,119 @@
 import tkinter as tk
+import warnings
 from tkinter import ttk
 from typing import Any
 
-from infrastructure_tk_ui.styles.style_schemas import StylesTK, StylesTTK
-
-"""
-Создание стилей для всего приложения. Централизованно в одном файле.
-Этот файл необходимо скопировать в проект, и расписать здесь все конфигурации
-"""
+from infrastructure_tk_ui.styles.style_schemas import StyleSchema
 
 
 class StyleManager:
-    def __init__(self, root: tk.Tk | tk.Toplevel):
+    def __init__(
+            self, root: tk.Tk | tk.Toplevel, styles_in: list[StyleSchema], theme_use: str = 'clam',
+            disabled_tk: bool = False, disabled_ttk: bool = False, disabled_options: bool = False,
+            bypass: bool = False,
+    ):
+        """
+
+        :param root: главное окно приложения
+        :param styles_in: стили заданные пользователем (список объектов StyleSchema)
+        :param theme_use: используемая тема, например 'clam'
+        :param disabled_tk: отключить tk стили
+        :param disabled_ttk: отключить ttk стили
+        :param disabled_options: отключить общие стили передаваемые через options
+        :param bypass: отключить все стили и полностью игнорировать данную обёртку
+        """
         self._root = root
+        self._styles = ttk.Style()
+        self._styles.theme_use(theme_use)  # clam наиболее подходящая под различные OS
+        self._styles_in = styles_in
 
-    def set_style(
-            self, tk_disable: bool = False, ttk_disable: bool = False, options_disable: bool = False
-    ) -> tuple[StylesTK, StylesTTK]:
-        """Установка и применение стилей"""
-        style_tk = self._set_style_tk(disable=tk_disable)
-        style_ttk = self._set_style_ttk(disable=ttk_disable)
-        self._set_options(disable=options_disable)
-        if not tk_disable:
-            self._root.configure(**style_tk.root)
-        return style_tk, style_ttk
+        self._disabled_tk = disabled_tk if not bypass else True
+        self._disabled_ttk = disabled_ttk if not bypass else True
+        self._disabled_options = disabled_options if not bypass else True
+        self._bypass = bypass
 
-    def _set_style_tk(self, disable: bool = False) -> StylesTK:
-        """
-        Определение стилей для tk виджетов
-        В использующем модуле нужно определить стили
-        """
-        if disable:
-            return StylesTK()
+        # кеширование уже примененных стилей (чтобы не переприменять одни и те же стили
+        # на например кучу кнопок которые юзают один и тот же стиль)
+        self._applied_ttk_styles: set[str] = set()
+        self._applied_options: set[tuple[str, Any]] = set()
 
-        styles_tk = self._on_style_tk()  # вызов определенных пользователем стилей
-        return styles_tk or StylesTK()
+        # применение стилей к root окну (если в styles_in явно прописан root)
+        if not bypass and not disabled_tk:
+            for st in self._styles_in:
+                if st.widget_name == 'root':
+                    self._root.configure(st.tk)
 
-    def _set_options(self, disable: bool = False) -> None:
+    def reset_cache(self):
+        """Сброс стилей (задел на будущее, если стили понадобится менять в рантайме)"""
+        self._applied_ttk_styles = set()
+        self._applied_options = set()
+
+    def apply(self, form: tk.Misc | ttk.Widget, layer: int | str | None = None) -> None:
         """
-        Применение глобальных опций стилей, например для combobox
-        root.form.option_add('*TCombobox*Listbox.font', font)
+        Применение стилей к конкретным элементам с автораспределением.
+        :param layer:
+        :param form: форма к которой применяются стили
         """
-        if disable:
+        if self._bypass:
             return
-        options = self._on_options() or ()
-        for pattern, value in options:
-            self._root.option_add(pattern, value)
+        name = form.widgetName
 
-    def _on_options(self) -> list[tuple[str, Any]]:
-        """Здесь генерируется список кортежей опций для виджетов ttk/tk, например: [('*TCombobox*Listbox.background', 'red' )]"""
-        pass
+        is_ttk = False
+        if 'ttk' in name:
+            name = name.split(':')[-1]
+            is_ttk = True
 
-    def _set_style_ttk(self, disable: bool = False) -> StylesTTK:
-        """
-        Определение стилей для ttk виджетов
-        В использующем модуле нужно определить стили и опционально маппинги
-        """
-        style = ttk.Style()
-        style.theme_use('clam')
+        current_style = None
 
-        styles_ttk = StylesTTK(
-            button='TButton',
-            label='TLabel',
-            checkbutton='TCheckbutton',
-            radiobutton='TRadiobutton',
-            progressbar='TProgressbar',
-            combobox='TCombobox',
-        )
+        for st in self._styles_in:
+            if st.widget_name == name:
+                if layer is not None and layer != st.layer:
+                    continue
+                current_style = st
 
-        # тема по умолчанию
-        if disable:
-            return styles_ttk
+        # если стиль для виджета не найден
+        if current_style is None:
+            warnings.warn(f'Не найден стиль для элемента `{name}`')
+            return
 
-        self._on_style_ttk(
-            style=style,
-            styles_ttk=styles_ttk,
-        )  # применение стилей для ttk
-        return styles_ttk
+        if is_ttk:
+            # если ttk стили переданы
+            if current_style.ttk is not None and not self._disabled_ttk:
+                # применение ttk стилей
+                style_name = current_style.ttk.style_name
+                if style_name not in self._applied_ttk_styles:
+                    # применение прямых стилей для ttk элементов
+                    self._applied_ttk_styles.add(style_name)  # добавить элемент в кеш
+                    for key, val in current_style.ttk.styles_dict.items():
+                        try:
+                            self._styles.configure(style_name, **{key: val})
+                        except Exception as err:
+                            warnings.warn(
+                                f'Не удалось применить конфигурацию ttk,{current_style.ttk.styles_dict}: {err}'
+                            )
+                    # применение маппинга для ttk стилей (состояния active, pressed, disabled и другие)
+                    # если передан disabled, то перезаписывает configure
+                    mapping = current_style.ttk.mapping
+                    if mapping is not None:
+                        for map_schema in mapping:
+                            self._styles.map(style_name, **{map_schema: mapping[map_schema]})
 
-    def _on_style_tk(self) -> StylesTK | None:
-        """В этих методах в дочерних классах реализовываются стили, Здесь генерируется словарь конфигурации для tk виджетов"""
-        pass
+                # привязать конфигурацию к элементу
+                form.configure(style=style_name)  # noqa
 
-    def _on_style_ttk(self, style: ttk.Style, styles_ttk) -> None:
-        """
-        В этих методах в дочерних классах реализовываются стили, здесь применяются конфигурации к стилям ttk
-        :param style: объект к которому применяются стили
-        :param styles_ttk: названия стилей
-        """
-        pass
+        # применить конфигурацию для tk виджетов
+        if not self._disabled_tk:
+            allowed_prop = list(form.configure().keys())
+            congif = {}
+            for key, val in current_style.tk.items():
+                if key in allowed_prop:
+                    congif[key] = val
+            form.configure(**congif)
+
+        if not self._disabled_options:
+            # применение общих глобальных опций по шаблону, например стили для выпадающего меню Combobox [('*TCombobox*Listbox.background', 'red' )]
+            for pattern, option in current_style.options:
+                key = (pattern, option)
+                if key not in self._applied_options:
+                    self._root.option_add(pattern, option)
+                    self._applied_options.add(key)

@@ -1,106 +1,267 @@
-import tkinter as tk
-from tkinter import ttk
-from typing import Any
-
-from infrastructure_tk_ui import StyleManager as StyleManagerCore
-from infrastructure_tk_ui import StylesTK, StylesTTK
-
-"""
-Создание стилей для всего приложения. Централизованно в одном файле. Унаследоваться от класса StyleManager и 
-реализовать логику присвоения стилей в методах on_style_tk on_style_ttk
-"""
-
-background_color = '#0E1B29'
-text_color = 'white'
-font = ('arial', 12, 'normal')
+from enum import Enum
+from infrastructure_tk_ui import StyleSchema, StyleSchemaTTK
 
 
-class StyleManager(StyleManagerCore):
-    def __init__(self, root: tk.Tk | tk.Toplevel):
-        """
-        :param root: проброс главного окна к которому будут применяться опции
-        """
-        super().__init__(root)
+# ========================================================================
+# Стили для tk, ttk, ttk mapping, options, эту часть можно генерить с ИИ
+# не перегружая его остальным кодом.
+# Элементы для которых задаются стили:
+# 'root', 'button', 'entry', 'label', 'checkbox', 'text', 'progressbar', 'combobox', 'checkbutton', 'radiobutton'
+# ========================================================================
 
-    def _on_options(self) -> list[tuple[str, Any]]:
-        """Здесь генерируется список кортежей опций для виджетов ttk/tk, например: [('*TCombobox*Listbox.background', 'red' )]"""
-        options = [
-            ('*TCombobox*Listbox.font', font),
-            ('*TCombobox*Listbox.background', background_color),
-        ]
-        return options
+# ========================================================================
+# ЦВЕТА И ШРИФТЫ (менять здесь — применится везде)
+# ========================================================================
+class Colors(Enum):
+    BG = '#0E1B29'  # основной фон (тёмно-синий)
+    TEXT = 'white'  # основной текст
+    HOVER = '#1A3A5C'  # цвет при наведении
+    PRESSED = '#0A1220'  # цвет при нажатии
+    DISABLED = 'gray'  # отключённый элемент
+    BORDER = 'gray'  # цвет рамки
+    BORDER_WIDTH = 1  # бордеры на кнопках и у рамок
+    ACCENT = 'white'  # акцент (прогресс бар)
 
-    def _on_style_tk(self) -> StylesTK | None:
-        """В этих методах в дочерних классах реализовываются стили"""
-        styles_tk = StylesTK(
-            root={'bg': background_color},
-            textarea={'bg': background_color, 'fg': text_color, 'font': font},
-            combobox={'font': font},
-        )
-        return styles_tk
 
-    def _on_style_ttk(self, style: ttk.Style, styles_ttk: StylesTTK) -> None:
-        """В этих методах в дочерних классах реализовываются стили"""
-        # buttons
-        style.configure(
-            styles_ttk.button, font=font, background=background_color, foreground=text_color,
-            bordercolor='gray', borderwidth=2, relief='solid',
-        )
-        # label
-        style.configure(
-            styles_ttk.label, font=font, background=background_color, foreground=text_color,
-        )
-        # checkbox
-        style.configure(
-            styles_ttk.checkbutton, font=font, background=background_color, foreground=text_color,
-        )
-        # radiobutton
-        style.configure(
-            styles_ttk.radiobutton, font=font, background=background_color, foreground=text_color,
-        )
-        # progress_bar
-        style.configure(
-            styles_ttk.progressbar,
-            troughcolor='black',  # Цвет фона (пустой части)
-            background='darkgreen',  # Цвет заполненной части (полосы)
-            bordercolor=background_color,  # Цвет границы
-        )
-        # Combobox -> внимание здесь шрифт игнорируется
-        style.configure(
-            styles_ttk.combobox,
-            fieldbackground=background_color, background=background_color, foreground=text_color,
-        )
+FONT = ('arial', 11, 'normal')
 
-        # привязка маппинг стилей
-        # здесь стили просто отключены (поставлен фоновый цвет)
-        # порядок крайне важен
-        style.map(
-            styles_ttk.checkbutton,
-            background=[
-                ('active', 'selected', background_color),  # наведена мышь и выбрано значение
-                ('active', '!selected', background_color),  # наведена мышь но значение не выбрано
-                ('selected', background_color),  # выбран (активно в фокусе)
-                ('disabled', background_color),  # не выбран (не активно - не в фокусе)
-            ],
-        )
+# ========================================================================
+# СТИЛИ (по одному слою на каждый виджет)
+# ========================================================================
+styles = [
+    # ---------- ROOT ----------
+    StyleSchema(
+        widget_name='root',
+        tk={'bg': Colors.BG.value},
+    ),
 
-        style.map(
-            styles_ttk.button, **{
+    # ---------- BUTTON ----------
+    StyleSchema(
+        layer=1,
+        widget_name='button',
+        tk={'bg': Colors.BG.value, 'font': FONT, 'fg': Colors.TEXT.value, 'cursor': 'hand2'},
+        ttk=StyleSchemaTTK(
+            style_name='Custom.TButton',
+            styles_dict={
+                'background': Colors.BG.value,
+                'foreground': Colors.TEXT.value,
+                'bordercolor': Colors.BORDER.value,
+                'borderwidth': Colors.BORDER_WIDTH.value,
+                'relief': 'solid',
+                'font': FONT,
+            },
+            mapping={
                 'background': [
-                    ('active', 'selected', 'gray'),  # наведена мышь и выбрано значение
-                    ('active', '!selected', 'gray'),  # наведена мышь но значение не выбрано
-                    ('selected', background_color),  # выбран (активно в фокусе)
-                    ('disabled', background_color),  # не выбран (не активно - не в фокусе)
-                ]
-            }
-        )
+                    ('active', Colors.HOVER.value),
+                    ('pressed', Colors.PRESSED.value),
+                    ('!disabled', Colors.BG.value),
+                ],
+                'foreground': [
+                    ('disabled', Colors.DISABLED.value),
+                    ('!disabled', Colors.TEXT.value),
+                ],
+            },
+        ),
+    ),
 
-        # style.map(
-        #     styles_ttk.button,
-        #     background=[
-        #         ('active', 'selected', 'gray'),  # наведена мышь и выбрано значение
-        #         ('active', '!selected', 'gray'),  # наведена мышь но значение не выбрано
-        #         ('selected', background_color),  # выбран (активно в фокусе)
-        #         ('disabled', background_color),  # не выбран (не активно - не в фокусе)
-        #     ],
-        # )
+    # ---------- ENTRY ----------
+    StyleSchema(
+        layer=1,
+        widget_name='entry',
+        tk={'bg': Colors.BG.value, 'fg': Colors.TEXT.value, 'font': FONT},
+        ttk=StyleSchemaTTK(
+            style_name='Custom.TEntry',
+            styles_dict={
+                'fieldbackground': Colors.BG.value,
+                'foreground': Colors.TEXT.value,
+                'bordercolor': Colors.BORDER.value,
+                'borderwidth': 2,
+                'relief': 'solid',
+                'padding': 3,
+            },
+            mapping={
+                'fieldbackground': [
+                    ('focus', Colors.HOVER.value),
+                    ('!disabled', Colors.BG.value),
+                ],
+                'foreground': [
+                    ('disabled', Colors.DISABLED.value),
+                    ('!disabled', Colors.TEXT.value),
+                ],
+            },
+        ),
+    ),
+
+    # ---------- LABEL ----------
+    StyleSchema(
+        layer=1,
+        widget_name='label',
+        tk={'bg': Colors.BG.value, 'fg': Colors.TEXT.value, 'font': FONT},
+        ttk=StyleSchemaTTK(
+            style_name='Custom.TLabel',
+            styles_dict={
+                'background': Colors.BG.value,
+                'foreground': Colors.TEXT.value,
+                'font': FONT,
+            },
+            mapping={
+                'foreground': [
+                    ('disabled', Colors.DISABLED.value),
+                    ('!disabled', Colors.TEXT.value),
+                ],
+            },
+        ),
+    ),
+
+    # ---------- CHECKBOX ----------
+    StyleSchema(
+        layer=1,
+        widget_name='checkbutton',
+        tk={'bg': Colors.BG.value, 'fg': Colors.TEXT.value, 'font': FONT},
+        ttk=StyleSchemaTTK(
+            style_name='Custom.TCheckbutton',
+            styles_dict={
+                'background': Colors.BG.value,
+                'foreground': Colors.TEXT.value,
+                'font': FONT,
+                'indicatorcolor': Colors.BORDER.value,
+            },
+            mapping={
+                'background': [
+                    ('active', 'selected', Colors.BG.value),
+                    ('active', '!selected', Colors.BG.value),
+                    ('selected', Colors.BG.value),
+                    ('disabled', Colors.BG.value),
+                    ('!disabled', Colors.BG.value),
+                ],
+                'indicatorcolor': [
+                    ('selected', Colors.ACCENT.value),
+                    ('!selected', Colors.BORDER.value),
+                    ('disabled', Colors.DISABLED.value),
+                ],
+                'foreground': [
+                    ('disabled', Colors.DISABLED.value),
+                    ('!disabled', Colors.TEXT.value),
+                ],
+            },
+        ),
+    ),
+
+    # ---------- TEXT (TextArea) ----------
+    StyleSchema(
+        layer=1,
+        widget_name='text',
+        tk={
+            'bg': Colors.BG.value,
+            'fg': Colors.TEXT.value,
+            'font': FONT,
+            'insertbackground': Colors.TEXT.value,  # цвет курсора
+            'selectbackground': Colors.HOVER.value,  # цвет выделения
+            'selectforeground': Colors.TEXT.value,
+            'relief': 'solid',
+            'borderwidth': 2,
+        },
+    ),
+
+    # ---------- PROGRESS BAR ----------
+    StyleSchema(
+        layer=1,
+        widget_name='progressbar',
+        ttk=StyleSchemaTTK(
+            style_name='Custom.Horizontal.TProgressbar',
+            styles_dict={
+                'troughcolor': Colors.PRESSED.value,  # фон пустой части
+                'background': Colors.ACCENT.value,  # заполненная часть
+                'bordercolor': Colors.BG.value,
+                'lightcolor': Colors.ACCENT.value,
+                'darkcolor': Colors.ACCENT.value,
+            },
+            mapping={
+                'background': [
+                    ('!disabled', Colors.ACCENT.value),
+                ],
+            },
+        ),
+    ),
+
+    # ---------- COMBOBOX ----------
+    StyleSchema(
+        layer=1,
+        widget_name='combobox',
+        tk={'bg': Colors.BG.value, 'fg': Colors.TEXT.value, 'font': FONT},
+        ttk=StyleSchemaTTK(
+            style_name='Custom.TCombobox',
+            styles_dict={
+                'fieldbackground': Colors.BG.value,
+                'background': Colors.BG.value,
+                'foreground': Colors.TEXT.value,
+                'arrowcolor': Colors.TEXT.value,
+                'bordercolor': Colors.BORDER.value,
+                'borderwidth': 2,
+                'relief': 'solid',
+                'padding': 3,
+            },
+            mapping={
+                'fieldbackground': [
+                    ('readonly', Colors.BG.value),
+                    ('!disabled', Colors.BG.value),
+                ],
+                'background': [
+                    ('active', Colors.HOVER.value),
+                    ('!disabled', Colors.BG.value),
+                ],
+                'foreground': [
+                    ('readonly', Colors.TEXT.value),
+                    ('!disabled', Colors.TEXT.value),
+                ],
+                'arrowcolor': [
+                    ('active', Colors.TEXT.value),
+                    ('!disabled', Colors.TEXT.value),
+                ],
+            },
+        ),
+        # для внутреннего Listbox (option_add)
+        options=[
+            ('*TCombobox*Listbox.font', FONT),
+            ('*TCombobox*Listbox.background', Colors.BG.value),
+            ('*TCombobox*Listbox.foreground', Colors.TEXT.value),
+            ('*TCombobox*Listbox.selectBackground', Colors.HOVER.value),
+            ('*TCombobox*Listbox.selectForeground', Colors.TEXT.value),
+        ],
+    ),
+
+    # ---------- RADIOBUTTON ----------
+    StyleSchema(
+        layer=1,
+        widget_name='radiobutton',
+        tk={'bg': Colors.BG.value, 'fg': Colors.TEXT.value, 'font': FONT},
+        ttk=StyleSchemaTTK(
+            style_name='Custom.TRadiobutton',
+            styles_dict={
+                'background': Colors.BG.value,
+                'foreground': Colors.TEXT.value,
+                'font': FONT,
+                'indicatorcolor': Colors.BORDER.value,
+            },
+            mapping={
+                'background': [
+                    ('active', 'selected', Colors.BG.value),
+                    ('active', '!selected', Colors.BG.value),
+                    ('selected', Colors.BG.value),
+                    ('disabled', Colors.BG.value),
+                    ('!disabled', Colors.BG.value),
+                ],
+                'indicatorcolor': [
+                    ('selected', Colors.ACCENT.value),
+                    ('!selected', Colors.BORDER.value),
+                    ('disabled', Colors.DISABLED.value),
+                ],
+                'foreground': [
+                    ('disabled', Colors.DISABLED.value),
+                    ('!disabled', Colors.TEXT.value),
+                ],
+            },
+        ),
+    ),
+
+]

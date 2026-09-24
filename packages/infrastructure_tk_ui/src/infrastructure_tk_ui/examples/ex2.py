@@ -1,7 +1,9 @@
 from time import sleep
 from infrastructure_tk_ui import RootWidget, ProgressBarWidgetTTK, ComboBoxTTK
-from infrastructure_tk_ui.examples.ex0 import StyleManager
 import threading
+from tkinter import ttk
+from infrastructure_tk_ui import StyleManager
+from infrastructure_tk_ui.examples.ex0 import styles
 
 """
 Примеры построения основных виджетов, встроенными tkinter методами, и классами расширителями, а также применение стилей
@@ -12,23 +14,39 @@ import threading
 def ex1():
     """Создание простого прогресс бара"""
     padx, pady = 10, 10
-    root = RootWidget(size=(400, 40))
+    root = RootWidget()
     # ВАЖНО! Активацию стилей делать только после создания root окна (иначе будет появляться второе окно)
     # активация стилей, их можно отключить при необходимости (флаги disable)
-    style_manager = StyleManager(root=root.form)
-    styles, styles_ttk = style_manager.set_style(tk_disable=False, ttk_disable=False, options_disable=False)
-    root.form.configure(padx=padx, pady=pady, **styles.root)
-
+    style_manager = StyleManager(
+        root=root.form, styles_in=styles,
+        disabled_tk=False, disabled_ttk=False, disabled_options=False,
+        bypass=False,
+    )
+    root.form.configure(padx=padx, pady=pady)
+    label = ttk.Label(root.form, text='stt_vosk: Загрузка компонента')
+    label.configure(justify='left', anchor='nw', width=50)
+    label.pack(fill='x', padx=padx, pady=pady, expand=True)
+    style_manager.apply(label)
+    # label.configure(foreground='green')  # style_manager не конфликтует с баз. настройками, можно здесь переопределять
     progress = ProgressBarWidgetTTK(root.form)
-    progress.form.pack(expand=True, fill='both')
+    progress.form.pack(expand=True, fill='both', padx=padx, pady=pady)
+    style_manager.apply(progress.form)
 
     # callback функция которая изменяет значение прогресс бара, (её в отдельный поток)
     def callback():
         for i in range(100):
-            sleep(0.05)
+            if i == 30:
+                label.configure(text='stt_vosk: сборка приложения')
+            if i == 60:
+                label.configure(text='stt_vosk: удаление остаточных файлов')
+            sleep(0.1)
             progress.set_value(i)
         progress.form.destroy()
         root.form.destroy()
+
+    button = ttk.Button(root.form, text='отмена', command=lambda: root.form.destroy())
+    style_manager.apply(button)
+    button.pack(side='right', padx=padx, pady=pady)
 
     # просто пример вызова прогресс бара. Спустя 10 ms, после отрисовки окна запустится прогресс бар
     root.form.after(10, threading.Thread(target=callback, daemon=True).start())
@@ -37,39 +55,46 @@ def ex1():
 
 def ex2():
     """Создание выпадающего списка combobox"""
-    padx, pady = 20, 20
-    root = RootWidget(size=(300, 80))
-    # ВАЖНО! Активацию стилей делать только после создания root окна (иначе будет появляться второе окно)
-    # активация стилей, их можно отключить при необходимости (флаги disable)
-    style_manager = StyleManager(root=root.form)
-    styles, styles_ttk = style_manager.set_style(tk_disable=False, ttk_disable=False, options_disable=False)
-    root.form.configure(padx=padx, pady=pady, **styles.root)
+    padx, pady = 10, 10
+    root = RootWidget(size=(300, 60))
+    root.form.configure(padx=padx, pady=pady)
+    style_manager = StyleManager(
+        root=root.form, styles_in=styles,
+        disabled_tk=False, disabled_ttk=False, disabled_options=False,
+    )
+    root.form.configure(padx=padx, pady=pady)
 
     combobox = ComboBoxTTK(
         parent=root.form,
         values=['python', 'algol', 'cobol', 'vba'],
         default='python'
     )
-    # внимание! Combobox имеет гибридный стиль, то есть и ttk и обычный configure
-    combobox.form.configure(style=styles_ttk.combobox, cursor='hand2', **styles.combobox)
+    style_manager.apply(form=combobox.form)
     combobox.form.pack()
     root.form.mainloop()
 
 
 def ex3():
     """Создание выпадающего списка combobox"""
-    from tkinter import ttk
-    root = RootWidget(size=(300, 50))
+    padx, pady = 10, 10
+    root = RootWidget(center_window=True)
+    root.form.configure(padx=padx, pady=pady)
+    style_manager = StyleManager(
+        root=root.form, styles_in=styles,
+        disabled_tk=False, disabled_ttk=False, disabled_options=False, bypass=False,
+    )
 
-    # инициализация стилей
-    style_manager = StyleManager(root=root.form)  # к root применяются стили автоматически (если tk_disable)
-    styles, styles_ttk = style_manager.set_style(tk_disable=False, ttk_disable=False, options_disable=False)
-    ttk.Button(text='yes', style=styles_ttk.button).pack(side='left', fill='both', expand=True)
-    ttk.Button(text='no', style=styles_ttk.button).pack(side='left', fill='both', expand=True)
+    btn = ttk.Button(text='yes')
+    btn.pack(side='left', fill='both', expand=True)
+    style_manager.apply(form=btn, layer=1)
+    btn2 = ttk.Button(text='yes')
+    btn2.configure(style='Custom.TButton')
+    btn2.pack(side='left', fill='both', expand=True)
+    style_manager.apply(form=btn2, layer=1)
     root.form.mainloop()
 
 
 if __name__ == '__main__':
-    # ex1()
+    ex1()
     # ex2()
-    ex3()
+    # ex3()
