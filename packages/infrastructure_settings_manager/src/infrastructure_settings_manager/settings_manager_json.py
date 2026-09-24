@@ -111,6 +111,7 @@ if __name__ == '__main__':
         json_file_path=Path('settings.json'),
         settings_model=demo_settings,
     )
+    print(settings_manager.settings.audio_settings)
 
     # =====================================================================================================
     # 4. использование
