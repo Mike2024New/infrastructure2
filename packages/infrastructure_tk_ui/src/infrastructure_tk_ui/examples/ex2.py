@@ -3,7 +3,9 @@ from infrastructure_tk_ui import RootWidget, ProgressBarWidgetTTK, ComboBoxTTK
 import threading
 from tkinter import ttk
 from infrastructure_tk_ui import StyleManager
-from infrastructure_tk_ui.examples.ex0 import styles
+# стили можно определить и свои (например если планируется несколько слоев виджетов), а можно взять и стандартные как в импортах ниже
+from infrastructure_tk_ui import get_standart_styles
+from infrastructure_tk_ui import themes_standart as themes
 
 """
 Примеры построения основных виджетов, встроенными tkinter методами, и классами расширителями, а также применение стилей
@@ -18,7 +20,7 @@ def ex1():
     # ВАЖНО! Активацию стилей делать только после создания root окна (иначе будет появляться второе окно)
     # активация стилей, их можно отключить при необходимости (флаги disable)
     style_manager = StyleManager(
-        root=root.form, styles_in=styles,
+        root=root.form, styles_in=get_standart_styles(themes.Nord),
         disabled_tk=False, disabled_ttk=False, disabled_options=False,
         bypass=False,
     )
@@ -59,7 +61,7 @@ def ex2():
     root = RootWidget(size=(300, 60))
     root.form.configure(padx=padx, pady=pady)
     style_manager = StyleManager(
-        root=root.form, styles_in=styles,
+        root=root.form, styles_in=get_standart_styles(themes.LightGray),
         disabled_tk=False, disabled_ttk=False, disabled_options=False,
     )
     root.form.configure(padx=padx, pady=pady)
@@ -80,14 +82,14 @@ def ex3():
     root = RootWidget(center_window=True)
     root.form.configure(padx=padx, pady=pady)
     style_manager = StyleManager(
-        root=root.form, styles_in=styles,
+        root=root.form, styles_in=get_standart_styles(themes.HighContrast),
         disabled_tk=False, disabled_ttk=False, disabled_options=False, bypass=False,
     )
 
     btn = ttk.Button(text='yes')
     btn.pack(side='left', fill='both', expand=True)
     style_manager.apply(form=btn, layer=1)
-    btn2 = ttk.Button(text='yes')
+    btn2 = ttk.Button(text='no')
     btn2.configure(style='Custom.TButton')
     btn2.pack(side='left', fill='both', expand=True)
     style_manager.apply(form=btn2, layer=1)
@@ -95,6 +97,6 @@ def ex3():
 
 
 if __name__ == '__main__':
-    ex1()
+    # ex1()
     # ex2()
-    # ex3()
+    ex3()

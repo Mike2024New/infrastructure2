@@ -2,7 +2,9 @@ from tkinter import ttk
 from tkinter.scrolledtext import ScrolledText
 from infrastructure_tk_ui import RootWidget, CheckboxWidgetTTK, RadiobuttonGroupTTK
 from infrastructure_tk_ui import StyleManager
-from infrastructure_tk_ui.examples.ex0 import styles
+# стили можно определить и свои (например если планируется несколько слоев виджетов), а можно взять и стандартные как в импортах ниже
+from infrastructure_tk_ui import get_standart_styles
+from infrastructure_tk_ui import themes_standart as themes
 
 """
 Примеры построения основных виджетов, встроенными tkinter методами, и классами расширителями, а также применение стилей
@@ -15,7 +17,7 @@ def ex1():
     padx, pady = 3, 3
     root = RootWidget()
     style_manager = StyleManager(
-        root=root.form, styles_in=styles,
+        root=root.form, styles_in=get_standart_styles(themes.DarkGray),
         disabled_tk=False, disabled_ttk=False, disabled_options=False,
     )
     root.form.configure(padx=padx, pady=pady)
@@ -36,7 +38,7 @@ def ex2():
     padx, pady = 3, 3
     root = RootWidget()
     style_manager = StyleManager(
-        root=root.form, styles_in=styles,
+        root=root.form, styles_in=get_standart_styles(themes.Dracula),
         disabled_tk=False, disabled_ttk=False, disabled_options=False,
     )
     root.form.configure(padx=padx, pady=pady)
@@ -61,7 +63,7 @@ def ex3():
     padx, pady = 3, 3
     root = RootWidget()
     style_manager = StyleManager(
-        root=root.form, styles_in=styles,
+        root=root.form, styles_in=get_standart_styles(themes.Monokai),
         disabled_tk=False, disabled_ttk=False, disabled_options=False,
     )
     root.form.configure(padx=padx, pady=pady)
@@ -82,7 +84,7 @@ def ex4():
     padx, pady = 3, 3
     root = RootWidget()
     style_manager = StyleManager(
-        root=root.form, styles_in=styles,
+        root=root.form, styles_in=get_standart_styles(themes.DarkGreen),
         disabled_tk=False, disabled_ttk=False, disabled_options=False,
     )
     root.form.configure(padx=padx, pady=pady)
@@ -101,8 +103,10 @@ def ex5():
     """Создание текстового поля (text area)"""
     padx, pady = 10, 10
     root = RootWidget()
+    # темы можно переопределять на ходу
+    theme = themes.LightBeige(FONT=('arial', 14, 'bold'))
     style_manager = StyleManager(
-        root=root.form, styles_in=styles,
+        root=root.form, styles_in=get_standart_styles(preset=theme),
         disabled_tk=False, disabled_ttk=False, disabled_options=False,
     )
     root.form.configure(padx=padx, pady=pady)
@@ -114,8 +118,8 @@ def ex5():
 
 
 if __name__ == '__main__':
-    ex1()
+    # ex1()
     # ex2()
     # ex3()
     # ex4()
-    # ex5()
+    ex5()
