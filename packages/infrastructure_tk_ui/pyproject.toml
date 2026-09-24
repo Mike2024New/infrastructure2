@@ -4,4 +4,6 @@ version = "0.10.0"
 description = "Tkinter, обёртка, для быстрого построения ui, решая проблему забвения спустя n времени."
 readme = "README.md"
 requires-python = ">=3.12"
-dependencies = []
+dependencies = [
+    "pydantic>=2.13.5",
+]
