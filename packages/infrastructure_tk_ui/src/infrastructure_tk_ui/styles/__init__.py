@@ -1,7 +1,7 @@
 from infrastructure_tk_ui.styles.main import StyleManager
 from infrastructure_tk_ui.styles.style_schemas import StyleSchema, StyleSchemaTTK
-from infrastructure_tk_ui.styles.pressets import get_standart_styles
-from infrastructure_tk_ui.styles.pressets import themes_standart
+from infrastructure_tk_ui.styles.presets import get_standart_styles
+from infrastructure_tk_ui.styles.presets import themes_standart
 
 __all__ = [
     'StyleManager',

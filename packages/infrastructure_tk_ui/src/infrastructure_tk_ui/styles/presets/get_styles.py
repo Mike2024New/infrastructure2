@@ -11,7 +11,7 @@ from infrastructure_tk_ui.styles.style_schemas import StyleSchema, StyleSchemaTT
 def get_standart_styles(preset) -> list[StyleSchema]:
     """
     Возвращает готовые темы.
-    :param preset: описание темы. (см. в pressets/themes)
+    :param preset: описание темы. (см. в presets/themes)
     """
     styles = [
         # ---------- ROOT ----------

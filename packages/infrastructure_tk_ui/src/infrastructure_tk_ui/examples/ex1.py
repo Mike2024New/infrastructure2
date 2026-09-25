@@ -15,57 +15,70 @@ from infrastructure_tk_ui import themes_standart as themes
 def ex1():
     """Создание checkbox-галочки выбора и кнопки для отслеживания состояния"""
     padx, pady = 3, 3
+    # сперва создать root окно (tk.Tk())
     root = RootWidget()
+    # привязать стили
     style_manager = StyleManager(
-        root=root.form, styles_in=get_standart_styles(themes.DarkGray),
+        themes=[get_standart_styles(themes.Dracula)],
         disabled_tk=False, disabled_ttk=False, disabled_options=False,
+        bypass=False,  # если нужно отключить стили полностью то использовать bypass
     )
+    # создание размещение элементов (всё стандартными способами tkinter)
     root.form.configure(padx=padx, pady=pady)
     # создание чекбоксов - через вспомогательный класс, базовые методы (например configure и другие) доступны через .form (escape hatch)
     check_box = CheckboxWidgetTTK(parent=root.form, text='Добавить опцию', active=False)
     check_box.form.pack(expand=True, fill='x', anchor='center')
-    style_manager.apply(form=check_box.form)
-
-    # создание кнопок - обычным способом
     button = ttk.Button(root.form, text='cb1', command=lambda: print(check_box.get()))
     button.pack(expand=True, fill='x', anchor='center', padx=padx)
-    style_manager.apply(form=button)
+
+    # применение стилей выбранной темы
+    style_manager.apply(container=root.form)
+    # отрисовка формы
     root.form.mainloop()
 
 
 def ex2():
     """Пример создания простого диалогового окна label и две кнопки"""
     padx, pady = 3, 3
+    # сперва создать root окно (tk.Tk())
     root = RootWidget()
+    # привязать стили
     style_manager = StyleManager(
-        root=root.form, styles_in=get_standart_styles(themes.Dracula),
+        themes=[get_standart_styles(themes.LightBeige)],
         disabled_tk=False, disabled_ttk=False, disabled_options=False,
+        bypass=False,  # если нужно отключить стили полностью то использовать bypass
     )
+    # создание размещение элементов (всё стандартными способами tkinter)
     root.form.configure(padx=padx, pady=pady)
-
     lbl = ttk.Label(text=f'Установить обновление?')
     lbl.pack(fill='x', expand=True, padx=padx, pady=pady * 3)
-    style_manager.apply(form=lbl)
 
-    btn1 = ttk.Button(text=f'Да', command=lambda: root.form.destroy())
-    btn1.pack(fill='x', expand=True, side='left', padx=padx, pady=pady)
-    style_manager.apply(form=btn1)
+    ttk.Button(text=f'Да', command=lambda: root.form.destroy()).pack(
+        fill='x', expand=True, side='left', padx=padx, pady=pady)
+    ttk.Button(text=f'Нет', command=lambda: root.form.destroy()).pack(
+        fill='x', expand=True, side='left', padx=padx, pady=pady)
 
-    btn2 = ttk.Button(text=f'Нет', command=lambda: root.form.destroy())
-    btn2.pack(fill='x', expand=True, side='left', padx=padx, pady=pady)
-    style_manager.apply(form=btn2)
-
+    # применение стилей выбранной темы
+    style_manager.apply(container=root.form)
+    # после применения стилей можно при необходимости для конкретных элементов переопределить свойства
+    lbl.configure(font=('mono', 14))
+    # отрисовка формы
     root.form.mainloop()
 
 
 def ex3():
     """Создание модального окна и обработка нажатия в нем"""
     padx, pady = 3, 3
+    # сперва создать root окно (tk.Tk())
     root = RootWidget()
+    # привязать стили
     style_manager = StyleManager(
-        root=root.form, styles_in=get_standart_styles(themes.Monokai),
+        themes=[get_standart_styles(themes.LightGreen)],
         disabled_tk=False, disabled_ttk=False, disabled_options=False,
+        bypass=False,  # если нужно отключить стили полностью то использовать bypass
     )
+
+    # создание размещение элементов (всё стандартными способами tkinter)
     root.form.configure(padx=padx, pady=pady)
 
     def create_modal():
@@ -75,51 +88,67 @@ def ex3():
 
     btn = ttk.Button(text=f'Открыть', command=lambda: create_modal())
     btn.pack(fill='x', expand=True, side='left', padx=padx, pady=pady)
-    style_manager.apply(form=btn)
+
+    # применение стилей выбранной темы
+    style_manager.apply(container=root.form)
+    # отрисовка формы
     root.form.mainloop()
 
 
 def ex4():
     """RadioButton группа кнопок"""
     padx, pady = 3, 3
+    # сперва создать root окно (tk.Tk())
     root = RootWidget()
+    # привязать стили
     style_manager = StyleManager(
-        root=root.form, styles_in=get_standart_styles(themes.DarkGreen),
+        themes=[get_standart_styles(themes.DarkRed)],
         disabled_tk=False, disabled_ttk=False, disabled_options=False,
+        bypass=False,  # если нужно отключить стили полностью то использовать bypass
     )
+
+    # создание размещение элементов (всё стандартными способами tkinter)
     root.form.configure(padx=padx, pady=pady)
 
     radio_buttons = RadiobuttonGroupTTK(parent=root.form, options=['en', 'ru', 'ge'], default_value='ru')
     for form in radio_buttons.form:
-        style_manager.apply(form)
         form.pack()
     btn = ttk.Button(text='get value', command=lambda: print(radio_buttons.get_value()))
     btn.pack()
-    style_manager.apply(btn)
+
+    # применение стилей выбранной темы
+    style_manager.apply(container=root.form)
+    # отрисовка формы
     root.form.mainloop()
 
 
 def ex5():
     """Создание текстового поля (text area)"""
     padx, pady = 10, 10
+    # сперва создать root окно (tk.Tk())
     root = RootWidget()
-    # темы можно переопределять на ходу
-    theme = themes.LightBeige(FONT=('arial', 14, 'bold'))
+    # привязать стили
     style_manager = StyleManager(
-        root=root.form, styles_in=get_standart_styles(preset=theme),
+        themes=[get_standart_styles(themes.Nord)],
         disabled_tk=False, disabled_ttk=False, disabled_options=False,
+        bypass=False,  # если нужно отключить стили полностью то использовать bypass
     )
+
+    # создание размещение элементов (всё стандартными способами tkinter)
     root.form.configure(padx=padx, pady=pady)
 
     text = ScrolledText(root.form, wrap='word', height=10, width=40)
     text.pack(fill='both', expand=True)
-    style_manager.apply(text)
+
+    # применение стилей выбранной темы
+    style_manager.apply(container=root.form)
+    # отрисовка формы
     root.form.mainloop()
 
 
 if __name__ == '__main__':
-    # ex1()
+    ex1()
     # ex2()
     # ex3()
     # ex4()
-    ex5()
+    # ex5()

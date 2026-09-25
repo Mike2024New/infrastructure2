@@ -8,24 +8,21 @@ from infrastructure_tk_ui.styles.style_schemas import StyleSchema
 
 class StyleManager:
     def __init__(
-            self, root: tk.Tk | tk.Toplevel, styles_in: list[StyleSchema], theme_use: str = 'clam',
+            self, themes: list[list[StyleSchema]], theme_use: str = 'clam',
             disabled_tk: bool = False, disabled_ttk: bool = False, disabled_options: bool = False,
             bypass: bool = False,
     ):
         """
-
-        :param root: главное окно приложения
-        :param styles_in: стили заданные пользователем (список объектов StyleSchema)
         :param theme_use: используемая тема, например 'clam'
         :param disabled_tk: отключить tk стили
         :param disabled_ttk: отключить ttk стили
         :param disabled_options: отключить общие стили передаваемые через options
         :param bypass: отключить все стили и полностью игнорировать данную обёртку
         """
-        self._root = root
+        self._root: tk.Tk | tk.Toplevel | None = None
         self._styles = ttk.Style()
         self._styles.theme_use(theme_use)  # clam наиболее подходящая под различные OS
-        self._styles_in = styles_in
+        self._current_style: list[StyleSchema] | None = None
 
         self._disabled_tk = disabled_tk if not bypass else True
         self._disabled_ttk = disabled_ttk if not bypass else True
@@ -36,19 +33,61 @@ class StyleManager:
         # на например кучу кнопок которые юзают один и тот же стиль)
         self._applied_ttk_styles: set[str] = set()
         self._applied_options: set[tuple[str, Any]] = set()
+        # индекс текущей темы
+        self._themes_list = themes
+        self._theme_index = 0
 
-        # применение стилей к root окну (если в styles_in явно прописан root)
-        if not bypass and not disabled_tk:
-            for st in self._styles_in:
-                if st.widget_name == 'root':
-                    self._root.configure(st.tk)
-
-    def reset_cache(self):
+    def reset_cache(self) -> None:
         """Сброс стилей (задел на будущее, если стили понадобится менять в рантайме)"""
         self._applied_ttk_styles = set()
         self._applied_options = set()
 
-    def apply(self, form: tk.Misc | ttk.Widget, layer: int | str | None = None) -> None:
+    def theme_switcher(self):
+        """
+        Последовательное переключение по списку тем.
+        """
+        if self._root is None:
+            self._bypass = True
+            warnings.warn(f'Стили не применены. нужно вызвать метод .apply с передачей корневого окна')
+        self._theme_index += 1
+        if self._theme_index >= len(self._themes_list):
+            self._theme_index = 0
+        self.apply(container=self._root)
+
+    def apply(self, container: tk.Misc) -> None:
+        """
+        :param container: главное окно на котором размещены элементы (к его дочерним элементам применятся стили)
+        """
+        if self._bypass:
+            return
+
+        # определение корневого окна
+        self._root = container
+        self.reset_cache()
+        self._current_style = self._themes_list[self._theme_index]
+
+        self._apply_start(container)
+        # применение стилей к root окну (если в styles_in явно прописан root)
+        for st in self._current_style:
+            if st.widget_name == 'root':
+                self._root.configure(st.tk)
+
+    def _apply_start(self, container: tk.Misc | None = None) -> None:
+        """
+        Рекурсивное применение стилей к дочерним элементам
+        :param container: родительское окно в рамках которого стилизуются элементы
+        """
+        target = container if container is not None else self._root
+        if target != self._root:
+            self._apply(target)
+
+        for child in target.winfo_children():
+            if child.winfo_children():
+                self._apply_start(child)
+            else:
+                self._apply(child)
+
+    def _apply(self, form: tk.Misc | ttk.Widget, layer: int | str | None = None) -> None:
         """
         Применение стилей к конкретным элементам с автораспределением.
         :param layer:
@@ -65,7 +104,7 @@ class StyleManager:
 
         current_style = None
 
-        for st in self._styles_in:
+        for st in self._current_style:
             if st.widget_name == name:
                 if layer is not None and layer != st.layer:
                     continue
