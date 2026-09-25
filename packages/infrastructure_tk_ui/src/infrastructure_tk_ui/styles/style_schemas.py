@@ -11,7 +11,9 @@ class StyleSchemaTTK(BaseModel):
 
 class StyleSchema(BaseModel):
     widget_name: Literal[
-        'root', 'button', 'entry', 'label', 'checkbox', 'text', 'progressbar', 'combobox', 'checkbutton', 'radiobutton',
+        'root', 'button', 'entry', 'label', 'checkbox', 'text',
+        'progressbar', 'combobox', 'checkbutton', 'radiobutton',
+        'frame', 'scrollbar',
     ]
     tk: dict = Field(default_factory=dict)
     ttk: StyleSchemaTTK | None = None

@@ -1,10 +1,10 @@
-from tkinter import ttk
 from tkinter.scrolledtext import ScrolledText
-from infrastructure_tk_ui import RootWidget, CheckboxWidgetTTK, RadiobuttonGroupTTK
+from tkinter import ttk
+from infrastructure_tk_ui import widgets
 from infrastructure_tk_ui import StyleManager
 # стили можно определить и свои (например если планируется несколько слоев виджетов), а можно взять и стандартные как в импортах ниже
 from infrastructure_tk_ui import get_standart_styles
-from infrastructure_tk_ui import themes_standart as themes
+from infrastructure_tk_ui import themes_standart
 
 """
 Примеры построения основных виджетов, встроенными tkinter методами, и классами расширителями, а также применение стилей
@@ -16,18 +16,19 @@ def ex1():
     """Создание checkbox-галочки выбора и кнопки для отслеживания состояния"""
     padx, pady = 3, 3
     # сперва создать root окно (tk.Tk())
-    root = RootWidget()
+    root = widgets.RootWidget()
     # привязать стили
     style_manager = StyleManager(
-        themes=[get_standart_styles(themes.Dracula)],
+        themes=[get_standart_styles(themes_standart.Dracula)],
         disabled_tk=False, disabled_ttk=False, disabled_options=False,
         bypass=False,  # если нужно отключить стили полностью то использовать bypass
     )
     # создание размещение элементов (всё стандартными способами tkinter)
     root.form.configure(padx=padx, pady=pady)
     # создание чекбоксов - через вспомогательный класс, базовые методы (например configure и другие) доступны через .form (escape hatch)
-    check_box = CheckboxWidgetTTK(parent=root.form, text='Добавить опцию', active=False)
+    check_box = widgets.CheckboxWidgetTTK(parent=root.form, text='Добавить опцию', active=False)
     check_box.form.pack(expand=True, fill='x', anchor='center')
+    # ButtonWidgetTTK можно создать и через обычный  ttk.Button (просто для консистенции импорт через widgets)
     button = ttk.Button(root.form, text='cb1', command=lambda: print(check_box.get()))
     button.pack(expand=True, fill='x', anchor='center', padx=padx)
 
@@ -41,10 +42,10 @@ def ex2():
     """Пример создания простого диалогового окна label и две кнопки"""
     padx, pady = 3, 3
     # сперва создать root окно (tk.Tk())
-    root = RootWidget()
+    root = widgets.RootWidget()
     # привязать стили
     style_manager = StyleManager(
-        themes=[get_standart_styles(themes.LightBeige)],
+        themes=[get_standart_styles(themes_standart.LightBeige)],
         disabled_tk=False, disabled_ttk=False, disabled_options=False,
         bypass=False,  # если нужно отключить стили полностью то использовать bypass
     )
@@ -70,10 +71,10 @@ def ex3():
     """Создание модального окна и обработка нажатия в нем"""
     padx, pady = 3, 3
     # сперва создать root окно (tk.Tk())
-    root = RootWidget()
+    root = widgets.RootWidget()
     # привязать стили
     style_manager = StyleManager(
-        themes=[get_standart_styles(themes.LightGreen)],
+        themes=[get_standart_styles(themes_standart.LightGreen)],
         disabled_tk=False, disabled_ttk=False, disabled_options=False,
         bypass=False,  # если нужно отключить стили полностью то использовать bypass
     )
@@ -83,7 +84,7 @@ def ex3():
 
     def create_modal():
         """создается внешнее модальное окно, и кнопка которая закрывает его"""
-        modal = RootWidget(parent=root.form, modal=True)
+        modal = widgets.RootWidget(parent=root.form, modal=True)
         ttk.Button(modal.form, text=f'close', command=lambda: modal.form.destroy()).pack()
 
     btn = ttk.Button(text=f'Открыть', command=lambda: create_modal())
@@ -99,10 +100,10 @@ def ex4():
     """RadioButton группа кнопок"""
     padx, pady = 3, 3
     # сперва создать root окно (tk.Tk())
-    root = RootWidget()
+    root = widgets.RootWidget()
     # привязать стили
     style_manager = StyleManager(
-        themes=[get_standart_styles(themes.DarkRed)],
+        themes=[get_standart_styles(themes_standart.DarkRed)],
         disabled_tk=False, disabled_ttk=False, disabled_options=False,
         bypass=False,  # если нужно отключить стили полностью то использовать bypass
     )
@@ -110,12 +111,11 @@ def ex4():
     # создание размещение элементов (всё стандартными способами tkinter)
     root.form.configure(padx=padx, pady=pady)
 
-    radio_buttons = RadiobuttonGroupTTK(parent=root.form, options=['en', 'ru', 'ge'], default_value='ru')
+    radio_buttons = widgets.RadiobuttonGroupTTK(parent=root.form, options=['en', 'ru', 'ge'], default_value='ru')
     for form in radio_buttons.form:
         form.pack()
-    btn = ttk.Button(text='get value', command=lambda: print(radio_buttons.get_value()))
-    btn.pack()
 
+    ttk.Button(text='get value', command=lambda: print(radio_buttons.get_value())).pack()
     # применение стилей выбранной темы
     style_manager.apply(container=root.form)
     # отрисовка формы
@@ -126,10 +126,10 @@ def ex5():
     """Создание текстового поля (text area)"""
     padx, pady = 10, 10
     # сперва создать root окно (tk.Tk())
-    root = RootWidget()
+    root = widgets.RootWidget()
     # привязать стили
     style_manager = StyleManager(
-        themes=[get_standart_styles(themes.Nord)],
+        themes=[get_standart_styles(themes_standart.Nord)],
         disabled_tk=False, disabled_ttk=False, disabled_options=False,
         bypass=False,  # если нужно отключить стили полностью то использовать bypass
     )
@@ -147,8 +147,8 @@ def ex5():
 
 
 if __name__ == '__main__':
-    ex1()
+    # ex1()
     # ex2()
     # ex3()
     # ex4()
-    # ex5()
+    ex5()

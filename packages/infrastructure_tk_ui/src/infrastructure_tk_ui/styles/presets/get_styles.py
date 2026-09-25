@@ -249,5 +249,55 @@ def get_standart_styles(preset) -> list[StyleSchema]:
             ),
         ),
 
+        # ---------- FRAME ----------
+        StyleSchema(
+            layer=1,
+            widget_name='frame',
+            tk={'bg': preset.BG},
+            ttk=StyleSchemaTTK(
+                style_name='Custom.TFrame',
+                styles_dict={
+                    'background': preset.BG,
+                    'bordercolor': preset.BORDER,
+                    'borderwidth': 0,
+                    'relief': 'flat',
+                },
+                mapping={
+                    'background': [
+                        ('!disabled', preset.BG),
+                    ],
+                },
+            ),
+        ),
+
+        # ---------- SCROLLBAR ----------
+        StyleSchema(
+            layer=1,
+            widget_name='scrollbar',
+            tk={'bg': preset.BG, 'troughcolor': preset.PRESSED, 'activebackground': preset.HOVER},
+            ttk=StyleSchemaTTK(
+                style_name='Custom.Vertical.TScrollbar',
+                styles_dict={
+                    'background': preset.BORDER,
+                    'troughcolor': preset.PRESSED,
+                    'bordercolor': preset.BG,
+                    'arrowcolor': preset.TEXT,
+                    'darkcolor': preset.BORDER,
+                    'lightcolor': preset.BORDER,
+                },
+                mapping={
+                    'background': [
+                        ('active', preset.HOVER),
+                        ('pressed', preset.PRESSED),
+                        ('!disabled', preset.BORDER),
+                    ],
+                    'arrowcolor': [
+                        ('disabled', preset.DISABLED),
+                        ('!disabled', preset.TEXT),
+                    ],
+                },
+            ),
+        ),
+
     ]
     return styles

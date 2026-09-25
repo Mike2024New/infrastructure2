@@ -1,11 +1,11 @@
 from time import sleep
-from infrastructure_tk_ui import RootWidget, ProgressBarWidgetTTK, ComboBoxTTK
 import threading
 from tkinter import ttk
+from infrastructure_tk_ui import widgets
 from infrastructure_tk_ui import StyleManager
 # стили можно определить и свои (например если планируется несколько слоев виджетов), а можно взять и стандартные как в импортах ниже
 from infrastructure_tk_ui import get_standart_styles
-from infrastructure_tk_ui import themes_standart as themes
+from infrastructure_tk_ui import themes_standart
 
 """
 Примеры построения основных виджетов, встроенными tkinter методами, и классами расширителями, а также применение стилей
@@ -16,11 +16,11 @@ from infrastructure_tk_ui import themes_standart as themes
 def ex1():
     """Создание простого прогресс бара"""
     padx, pady = 10, 10
-    root = RootWidget()
+    root = widgets.RootWidget()
     # ВАЖНО! Активацию стилей делать только после создания root окна (иначе будет появляться второе окно)
     # активация стилей, их можно отключить при необходимости (флаги disable)
     style_manager = StyleManager(
-        themes=[get_standart_styles(themes.LightGray)],
+        themes=[get_standart_styles(themes_standart.LightGray)],
         disabled_tk=False, disabled_ttk=False, disabled_options=False, bypass=False,
     )
     root.form.configure(padx=padx, pady=pady)
@@ -28,7 +28,7 @@ def ex1():
     label.configure(justify='left', anchor='nw', width=50)
     label.pack(fill='x', padx=padx, pady=pady, expand=True)
     # label.configure(foreground='green')  # style_manager не конфликтует с баз. настройками, можно здесь переопределять
-    progress = ProgressBarWidgetTTK(root.form)
+    progress = widgets.ProgressBarWidgetTTK(root.form)
     progress.form.pack(expand=True, fill='both', padx=padx, pady=pady)
 
     # callback функция которая изменяет значение прогресс бара, (её в отдельный поток)
@@ -59,15 +59,15 @@ def ex1():
 def ex2():
     """Создание выпадающего списка combobox"""
     padx, pady = 10, 10
-    root = RootWidget(size=(300, 60))
+    root = widgets.RootWidget(size=(300, 60))
     root.form.configure(padx=padx, pady=pady)
     style_manager = StyleManager(
-        themes=[get_standart_styles(themes.LightGray)],
+        themes=[get_standart_styles(themes_standart.LightGray)],
         disabled_tk=False, disabled_ttk=False, disabled_options=False, bypass=False,
     )
     root.form.configure(padx=padx, pady=pady)
 
-    combobox = ComboBoxTTK(
+    combobox = widgets.ComboBoxTTK(
         parent=root.form,
         values=['python', 'algol', 'cobol', 'vba'],
         default='python'
@@ -80,10 +80,10 @@ def ex2():
 def ex3():
     """Создание выпадающего списка combobox"""
     padx, pady = 10, 10
-    root = RootWidget(center_window=True)
+    root = widgets.RootWidget(center_window=True)
     root.form.configure(padx=padx, pady=pady)
     style_manager = StyleManager(
-        themes=[get_standart_styles(themes.LightGray)],
+        themes=[get_standart_styles(themes_standart.LightGray)],
         disabled_tk=False, disabled_ttk=False, disabled_options=False, bypass=False,
     )
     btn = ttk.Button(text='yes')
@@ -99,11 +99,11 @@ def ex4():
     """Горячая смена тем"""
     padx, pady = 3, 3
     # сперва создать root окно (tk.Tk())
-    root = RootWidget()
+    root = widgets.RootWidget()
     # привязать стили
-    theme_light_gray = get_standart_styles(themes.LightGray)
-    theme_dark_gray = get_standart_styles(themes.DarkGray)
-    themes_nord = get_standart_styles(themes.Nord)
+    theme_light_gray = get_standart_styles(themes_standart.LightGray)
+    theme_dark_gray = get_standart_styles(themes_standart.DarkGray)
+    themes_nord = get_standart_styles(themes_standart.Nord)
     style_manager = StyleManager(
         themes=[theme_light_gray, theme_dark_gray, themes_nord],
         disabled_tk=False, disabled_ttk=False, disabled_options=False,
@@ -112,7 +112,7 @@ def ex4():
 
     # =================  Стандартный tkinter =================
     root.form.configure(padx=padx, pady=pady)
-    lbl = ttk.Label(text=f'Установить обновление?')
+    lbl = ttk.Label(root.form, text=f'Установить обновление?')
     lbl.pack(fill='x', expand=True, padx=padx, pady=pady * 3)
 
     ttk.Button(text=f'Тема', command=lambda: style_manager.theme_switcher()).pack(

@@ -1,5 +1,5 @@
 import pytest
-from infrastructure_tk_ui import RootWidget
+from infrastructure_tk_ui import widgets
 from infrastructure_tk_ui import StyleManager, get_standart_styles, themes_standart
 
 """
@@ -9,7 +9,7 @@ from infrastructure_tk_ui import StyleManager, get_standart_styles, themes_stand
 
 @pytest.fixture(scope='function')
 def root():
-    root = RootWidget(center_window=False)  # центрирование окна здесь не нужно
+    root = widgets.RootWidget(center_window=False)  # центрирование окна здесь не нужно
     root.form.withdraw()  # отключение окна для теста
     yield root
     root.form.destroy()  # завершение работы окна

@@ -47,8 +47,8 @@ class StyleManager:
         Последовательное переключение по списку тем.
         """
         if self._root is None:
-            self._bypass = True
             warnings.warn(f'Стили не применены. нужно вызвать метод .apply с передачей корневого окна')
+            return
         self._theme_index += 1
         if self._theme_index >= len(self._themes_list):
             self._theme_index = 0
