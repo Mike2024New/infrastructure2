@@ -15,12 +15,12 @@ def root():
     root.form.destroy()  # завершение работы окна
 
 
-def test_smoke_root_window(root):
+def test_tk_ui_smoke_root_window(root):
     """Проверка что виджет запускается"""
     assert root.form.winfo_exists(), 'окно не запустилось'
 
 
-def test_smoke_root_window_theme(root):
+def test_tk_ui_smoke_root_window_theme(root):
     """Проверка что стили применяются"""
     theme = get_standart_styles(preset=themes_standart.Nord())
     style_manager = StyleManager(themes=[theme])
