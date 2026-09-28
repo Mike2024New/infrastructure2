@@ -90,7 +90,7 @@ class StyleManager:
     def _apply(self, form: tk.Misc | ttk.Widget, layer: int | str | None = None) -> None:
         """
         Применение стилей к конкретным элементам с автораспределением.
-        :param layer:
+        :param layer: слой для элемента, применится если есть такой стиль
         :param form: форма к которой применяются стили
         """
         if self._bypass:

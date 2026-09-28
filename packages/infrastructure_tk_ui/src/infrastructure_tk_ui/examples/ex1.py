@@ -56,7 +56,8 @@ def ex2():
 
     ttk.Button(text=f'Да', command=lambda: root.form.destroy()).pack(
         fill='x', expand=True, side='left', padx=padx, pady=pady)
-    ttk.Button(text=f'Нет', command=lambda: root.form.destroy()).pack(
+    import tkinter as tk
+    tk.Button(text=f'Нет', command=lambda: root.form.destroy()).pack(
         fill='x', expand=True, side='left', padx=padx, pady=pady)
 
     # применение стилей выбранной темы

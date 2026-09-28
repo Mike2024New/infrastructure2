@@ -37,5 +37,34 @@ def ex1():
     root.form.mainloop()
 
 
+def ex2():
+    """Создание текстового поля (text area)"""
+    padx, pady = 10, 10
+    # сперва создать root окно (tk.Tk())
+    root = widgets.RootWidget()
+    # привязать стили
+    style_manager = StyleManager(
+        themes=[get_standart_styles(themes_standart.LightGreen)],
+        disabled_tk=False, disabled_ttk=False, disabled_options=False,
+        bypass=False,  # если нужно отключить стили полностью то использовать bypass
+    )
+
+    # создание размещение элементов (всё стандартными способами tkinter)
+    root.form.configure(padx=padx, pady=pady)
+
+    text = widgets.TextWidget(parent=root.form, editable=False)
+    text.form.configure(height=10, width=40)
+    text.form.pack(fill='both', expand=True)
+
+    def start_callback():
+        text.insert_text('row1: example\nrow2: example')
+
+    style_manager.apply(container=root.form)
+    # отрисовка формы
+    root.form.after(1000, lambda: start_callback())
+    root.form.mainloop()
+
+
 if __name__ == '__main__':
-    ex1()
+    # ex1()
+    ex2()

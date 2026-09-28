@@ -2,11 +2,13 @@ import asyncio
 import time
 from rich.live import Live
 from rich.table import Table
+from rich.console import Console
 from infrastructure_http_clients.file_downloader.downloader import DownloadFile
 
 
 async def progress_console_render(downloader: DownloadFile, event: asyncio.Event()):
-    with Live(refresh_per_second=10) as live:
+    console = Console(force_terminal=True)
+    with Live(refresh_per_second=10, console=console) as live:
         while not event.is_set():
             await asyncio.sleep(0.1)
 

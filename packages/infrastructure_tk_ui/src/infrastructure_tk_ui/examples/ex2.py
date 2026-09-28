@@ -126,7 +126,7 @@ def ex4():
 
 
 if __name__ == '__main__':
-    # ex1()
+    ex1()
     # ex2()
     # ex3()
-    ex4()
+    # ex4()
