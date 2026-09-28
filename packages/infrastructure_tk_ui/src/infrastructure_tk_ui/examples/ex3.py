@@ -1,3 +1,4 @@
+import asyncio, threading
 from tkinter import ttk
 from infrastructure_tk_ui import widgets
 from infrastructure_tk_ui import StyleManager
@@ -65,6 +66,25 @@ def ex2():
     root.form.mainloop()
 
 
+def ex3():
+    """Совмещение tkinter, и асинхронного кода. Важно! tkinter должен работать в главном потоке"""
+
+    async def main():
+        await asyncio.sleep(1)
+        print(f'Запущен отдельный асинхронный код')
+        # к элементам формы обращаться через root.form.after
+        root.form.after(1000, lambda: root.form.destroy())
+
+    root = widgets.RootWidget()
+
+    def installer():
+        threading.Thread(target=lambda: asyncio.run(main())).start()
+
+    root.form.after(1000, lambda: installer())
+    root.form.mainloop()
+
+
 if __name__ == '__main__':
     # ex1()
-    ex2()
+    # ex2()
+    ex3()
