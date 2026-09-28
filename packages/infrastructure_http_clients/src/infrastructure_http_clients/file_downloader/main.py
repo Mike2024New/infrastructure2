@@ -7,21 +7,23 @@ from infrastructure_http_clients.file_downloader.console_progress_bar import pro
 
 async def file_downloader(
         download_list: list[DownloadFileType],
-        console_progress_bar: bool = True,
         timeout: float = 5.0,
         attempts: int = 3,
         tolerance: int = 1024 * 64,
-        chunk_size: int = 8192
+        chunk_size: int = 8192,
+        console_progress_bar: bool = True,
+        console_progress_bar_separator: str = ';',
 ) -> None:
     """
     Загрузка файлов, с fallback на резервные url в случае необходимости.
     Принимает список заданий на url (см подробнее download_list).
-    :param console_progress_bar: показать прогесс бар загрузок в консоли
     :param download_list: список заданий.
-        :param timeout: время ожидания одного чанка загрузки (на случай медленных соединений)
-        :param chunk_size: размер буфера загрузки в байтах (чем меньше тем меньше ест памяти, но больше итераций и нагрузки на ЦП), для очень больших файлов можно повысить.
-        :param attempts: количество попыток на 1 url (на тот случай если соединение например не установилось)
-        :param tolerance: допуск отклонения размера файла в кб. (например git_api и фактический размер уже загруженного файла отличаются)
+    :param timeout: время ожидания одного чанка загрузки (на случай медленных соединений)
+    :param chunk_size: размер буфера загрузки в байтах (чем меньше тем меньше ест памяти, но больше итераций и нагрузки на ЦП), для очень больших файлов можно повысить.
+    :param attempts: количество попыток на 1 url (на тот случай если соединение например не установилось)
+    :param tolerance: допуск отклонения размера файла в кб. (например git_api и фактический размер уже загруженного файла отличаются)
+    :param console_progress_bar: показать прогесс бар загрузок в консоли
+    :param console_progress_bar_separator: разделитель для отображаемых загрузок
     :return:
     """
 
@@ -36,6 +38,7 @@ async def file_downloader(
                 progress_console_render(
                     downloader=downloader,
                     event=event_progress,
+                    separator=console_progress_bar_separator,
                 )
             )
         # ожидание загрузок
