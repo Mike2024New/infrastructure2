@@ -12,7 +12,7 @@ async def file_downloader(
         attempts: int = 3,
         tolerance: int = 1024 * 64,
         chunk_size: int = 8192,
-        console_progress_bar: bool = True,
+        console_progress_bar: bool = False,
         feedback_queue: asyncio.Queue | None = None,
 ) -> None:
     """
