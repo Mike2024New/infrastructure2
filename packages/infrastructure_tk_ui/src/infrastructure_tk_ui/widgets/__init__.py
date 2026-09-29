@@ -4,8 +4,10 @@ from infrastructure_tk_ui.widgets.radio_button_group_widget import RadiobuttonGr
 from infrastructure_tk_ui.widgets.progress_bar_widget_ttk import ProgressBarWidgetTTK
 from infrastructure_tk_ui.widgets.combobox_widget_ttk import ComboBoxTTK
 from infrastructure_tk_ui.widgets.text_widget import TextWidget
+from infrastructure_tk_ui.widgets.entry_widget_ttk import EntryWidgetTTK
 
 __all__ = [
     'RootWidget', 'CheckboxWidgetTTK', 'RadiobuttonGroupTTK',
     'ProgressBarWidgetTTK', 'ComboBoxTTK', 'TextWidget',
+    'EntryWidgetTTK',
 ]
