@@ -15,5 +15,8 @@ class ProgressBarWidgetTTK:
     def set_value(self, val: int):
         self._form['value'] = val
 
+    def get_value(self):
+        return self._form['value']
+
     def close(self):
         self._form.destroy()
