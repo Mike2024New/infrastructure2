@@ -1,5 +1,4 @@
 import asyncio
-import os
 
 from infrastructure_http_clients.file_downloader.get_file_size import get_total_size
 from infrastructure_http_clients.file_downloader.models import DownloadMonitor
@@ -10,7 +9,7 @@ import aiohttp
 class DownloadFile:
     def __init__(
             self,
-            timeout: float = 10,
+            timeout: float = 60,
             chunk_size: int = 8192,
             attempts: int = 2,
             tolerance: int = 1024 * 64
@@ -83,8 +82,6 @@ class DownloadFile:
                             self.register[download.filename].download_bytes += len(chunk)
                             f.write(chunk)
                         except asyncio.TimeoutError:
-                            if file_path.exists():
-                                os.remove(file_path)  # удалить битый не загруженный файл
                             return False
 
                 self.register[download.filename].done = True

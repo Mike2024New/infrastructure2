@@ -8,7 +8,7 @@ from infrastructure_http_clients.file_downloader.console_progress_bar import fee
 
 async def file_downloader(
         download_list: list[DownloadFileType],
-        timeout: float = 5.0,
+        timeout: float = 60,
         attempts: int = 3,
         tolerance: int = 1024 * 64,
         chunk_size: int = 8192,
