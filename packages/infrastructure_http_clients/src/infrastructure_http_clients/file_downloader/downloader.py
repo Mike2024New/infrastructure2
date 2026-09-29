@@ -85,7 +85,8 @@ class DownloadFile:
                             return False
 
                 self.register[download.filename].done = True
-        except Exception:  # noqa
+        except Exception as err:
+            print(f'❗ Ошибка загрузки {download.filename} -> {err}')
             return False
         return True
 
