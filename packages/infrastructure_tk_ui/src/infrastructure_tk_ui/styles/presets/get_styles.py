@@ -299,5 +299,44 @@ def get_standart_styles(preset) -> list[StyleSchema]:
             ),
         ),
 
+        # ---------- SPINBOX ----------
+        StyleSchema(
+            layer=1,
+            widget_name='spinbox',
+            tk={'bg': preset.BG, 'fg': preset.TEXT, 'font': preset.FONT},
+            ttk=StyleSchemaTTK(
+                style_name='Custom.TSpinbox',
+                styles_dict={
+                    'fieldbackground': preset.BG,
+                    'background': preset.BG,
+                    'foreground': preset.TEXT,
+                    'arrowcolor': preset.TEXT,
+                    'bordercolor': preset.BORDER,
+                    'borderwidth': 1,
+                    'relief': 'solid',
+                    'padding': 3,
+                    'font': preset.FONT,
+                },
+                mapping={
+                    'fieldbackground': [
+                        ('focus', preset.HOVER),
+                        ('!disabled', preset.BG),
+                    ],
+                    'background': [
+                        ('active', preset.HOVER),
+                        ('!disabled', preset.BG),
+                    ],
+                    'foreground': [
+                        ('disabled', preset.DISABLED),
+                        ('!disabled', preset.TEXT),
+                    ],
+                    'arrowcolor': [
+                        ('disabled', preset.DISABLED),
+                        ('!disabled', preset.TEXT),
+                    ],
+                },
+            ),
+        ),
+
     ]
     return styles
