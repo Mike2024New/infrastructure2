@@ -6,6 +6,46 @@ from infrastructure_http_clients.file_downloader.console_progress_bar import pro
 from infrastructure_http_clients.file_downloader.console_progress_bar import feedback_progress
 
 
+def downloads_detector(downloads: list[DownloadFileType]):
+    """
+    Определитель для нескольких url в задании на загрузку, это много разных файлов в одну папку? Например:
+
+        url_list=[
+            'https://huggingface.co/Systran/faster-whisper-tiny/resolve/main/config.json',
+            'https://huggingface.co/Systran/faster-whisper-tiny/resolve/main/tokenizer.json',
+            'https://huggingface.co/Systran/faster-whisper-tiny/resolve/main/model.bin',
+            'https://huggingface.co/Systran/faster-whisper-tiny/resolve/main/vocabulary.txt',
+        ],
+
+    Тогда downloads будет пересобран на несколько downloads, с указанием одной папки.
+
+    Или же это fallback (запасная ссылка), например:
+        url_list=[
+            'https://alphacephei.com/vosk/models/vosk-model-small-ru-0.22.zip',
+            'https://github.com/Mike2024New/STT_OFFLINE/releases/download/v1.1.0/vosk-model-small-ru-0.22.zip',
+        ],
+
+    Тогда всё останется в исходном состоянии
+    """
+    new_downloads = []
+    for dwn in downloads:
+        files = set()
+        for url in dwn.url_list:
+            files.add(url.split('/')[-1])
+        if len(files) > 1:  # если это не повторяющиеся файлы, то это именно fallback ссылки
+            for url in dwn.url_list:
+                new_downloads.append(
+                    DownloadFileType(
+                        filename=f"{dwn.target_dir.name}/{url.split('/')[-1]}",
+                        url_list=[url],
+                        target_dir=dwn.target_dir,
+                    )
+                )
+        else:
+            new_downloads.append(dwn)
+    return new_downloads
+
+
 async def file_downloader(
         download_list: list[DownloadFileType],
         timeout: float = 60,
@@ -26,6 +66,8 @@ async def file_downloader(
     :param console_progress_bar: показать прогесс бар загрузок в консоли
     :param feedback_queue: в очередь записывается информация по загрузкам в виде (название файла, размер файла в mb): {'gemma-3-1b-it-Q4_K_M.gguf': 0.0, 'gemma-3-4b-it-Q4_K_M.gguf': 0.0, 'v3_en.pt': 100.0}
     """
+
+    download_list = downloads_detector(download_list)  # авто распределение цепочка файлов в одну папку или fallback url
 
     async with aiohttp.ClientSession() as session:
         downloader = DownloadFile(timeout=timeout, attempts=attempts, tolerance=tolerance, chunk_size=chunk_size)
