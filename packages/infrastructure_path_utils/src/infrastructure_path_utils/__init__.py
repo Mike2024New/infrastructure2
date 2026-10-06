@@ -5,6 +5,7 @@ from infrastructure_path_utils.symlinks import create_symlink
 from infrastructure_path_utils.flat_json_manager import FlatJsonManager
 from infrastructure_path_utils.find_interpreter import find_interpreter_by_root_dir
 from infrastructure_path_utils.extact_zip import extract_zip_func
+from infrastructure_path_utils.extract_tar import extract_tar_func
 
 __all__ = [
     'get_root_dir_path', 'get_parent_by_marker',
@@ -13,5 +14,5 @@ __all__ = [
     'create_symlink',
     'FlatJsonManager',  # плоский json менеджер для структур вида { key : val }
     'find_interpreter_by_root_dir',
-    'extract_zip_func',
+    'extract_zip_func', 'extract_tar_func',
 ]
