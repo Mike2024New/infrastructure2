@@ -8,7 +8,8 @@ from infrastructure_http_clients.file_downloader_v2.shemas import DownloadTask
 
 
 async def downolad_many_files(
-        dwn_tasks: list[DownloadTask], event: asyncio.Event, feedback_dict: dict[str, float], limit_tasks: int = 2,
+        root_dir: Path, dwn_tasks: list[DownloadTask], event: asyncio.Event, feedback_dict: dict[str, float],
+        limit_tasks: int = 2,
 ):
     # ограниченная по скорости закачка, так как много закачек сразу блокируют каналы
     semaphore = asyncio.Semaphore(limit_tasks)
@@ -19,7 +20,7 @@ async def downolad_many_files(
                 event=event,
                 session=session_in,
                 feedback_dict=feedback_dict,
-                **dwn.get_downloader(root_dir=Path.cwd())
+                **dwn.get_downloader(root_dir=root_dir)
             )
 
     timeout = ClientTimeout(
@@ -64,7 +65,7 @@ async def main():
     event = asyncio.Event()  # переменная общего управления циклом загрузки, можно разом отменить всё
     feedback_dict = {dwn.label: 0.0 for dwn in dwn_tasks}  # список загрузок, для отображения процесса
     download_task = asyncio.create_task(
-        downolad_many_files(dwn_tasks=dwn_tasks, event=event, feedback_dict=feedback_dict)
+        downolad_many_files(root_dir=Path.cwd(), dwn_tasks=dwn_tasks, event=event, feedback_dict=feedback_dict)
     )
     observer_task = asyncio.create_task(observer(feedback_dict_in=feedback_dict, event_in=event))
     await asyncio.sleep(4)
