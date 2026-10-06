@@ -4,6 +4,7 @@ from infrastructure_path_utils.rotate_file import rotate_file_by_size_decorator
 from infrastructure_path_utils.symlinks import create_symlink
 from infrastructure_path_utils.flat_json_manager import FlatJsonManager
 from infrastructure_path_utils.find_interpreter import find_interpreter_by_root_dir
+from infrastructure_path_utils.extact_zip import extract_zip
 
 __all__ = [
     'get_root_dir_path', 'get_parent_by_marker',
@@ -12,4 +13,5 @@ __all__ = [
     'create_symlink',
     'FlatJsonManager',  # плоский json менеджер для структур вида { key : val }
     'find_interpreter_by_root_dir',
+    'extact_zip',
 ]
