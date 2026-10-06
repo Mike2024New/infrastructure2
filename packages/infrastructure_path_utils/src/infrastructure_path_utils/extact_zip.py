@@ -3,7 +3,7 @@ import shutil, zipfile
 from pathlib import Path
 
 
-def extract_zip(file: Path, delete_archive: bool = True, del_root_folder: bool = True) -> None:
+def extract_zip_func(file: Path, delete_archive: bool = True, del_root_folder: bool = True) -> None:
     """
     Распаковка zip архива.
     :param file: путь к zip архиву
