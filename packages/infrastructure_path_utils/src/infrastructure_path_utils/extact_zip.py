@@ -39,6 +39,15 @@ def extract_zip_func(file: Path, delete_archive: bool = True, del_root_folder: b
 
     # 3. Перемещение архивов наверх
     for item in source.iterdir():
+
+        # если файл уже существует (например был скачан ранее установщиком, то удалить его)
+        target_item = target / item.name
+        if target_item.exists():
+            if target_item.is_dir():
+                shutil.rmtree('\\\\?\\' + str(target_item))
+            else:
+                os.remove('\\\\?\\' + str(target_item))
+
         shutil.move('\\\\?\\' + str(item), '\\\\?\\' + str(target / item.name))
 
     # 4. Удаление пустой папки из под архива
