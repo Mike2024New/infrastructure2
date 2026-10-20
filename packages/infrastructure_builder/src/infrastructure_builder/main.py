@@ -35,6 +35,7 @@ class BuildParameters:
     :param venv_dir_name: название папки с виртуальным окружением (как правило обычно всегда .venv)
     :param clear_old_distributive: удалить следы предыдущих дистрибутивов?
     :param open_folder: открыть папку с дистрибутивом после создания дистрибутива
+    :param copy_files: копируемые файлы, список заполненный кортежами вида (<копируемай файл>, <в какую папку в папке дистрибутива>)
     :param copy_dirs: копируемые директории, список заполненный кортежами вида (<копируемая папка>, <её название в папке дистрибутива>)
     :param no_show_process: показывать ли логи инсталлера (capture_output)
     :return: None
@@ -49,6 +50,7 @@ class BuildParameters:
         one_file=True, # сжать всё в один файл? (дольше по времени загрузка приложения)
         create_resources_symlink=True, # создать симлинк на папку с ресурсами? Если она есть в проекте.
         open_folder=True # открыть папку с дистрибутивом после создания дистрибутива
+        copy_files=[(./demo.json, 'dir_name'),] # копируемые файлы
         copy_dirs=[(./add_dir, 'dir_name'), (./add_dir2, 'dir_name2'),] # копируемые директории
         copy_from_dist_to_target_dir = Path('./project') # копирование собранного дистрибутива в конкретную папку
         delete_releases_folder: bool = False  # удалить папку с промежуточным дистрибутивом
@@ -68,6 +70,7 @@ class BuildParameters:
     excluded: list[Path] = field(default_factory=list)
     venv_dir_name: str = '.venv'
     open_folder: bool = False  # открыть папку после создания дистрибутива
+    copy_files: list[tuple[Path, str]] = field(default_factory=list)  # список файлов для копирования
     copy_dirs: list[tuple[Path, str]] = field(default_factory=list)  # список файлов для копирования
     copy_from_dist_to_target_dir: Path | None = None  # копировать собранный дистрибутив в указ папку (если не None)
     delete_releases_folder: bool = False  # удалить папку с промежуточным дистрибутивом
@@ -188,8 +191,15 @@ def build(parameters: BuildParameters) -> None | Path:
 
     # копирование заданных файлов
     if parameters.copy_dirs:
-        for target_dir, name in parameters.copy_dirs:
-            shutil.copytree(str(target_dir), distributive_path / name)
+        for dir_path, target_dir_name in parameters.copy_dirs:
+            shutil.copytree(str(dir_path), distributive_path / target_dir_name)
+
+    # копирование файлов
+    if parameters.copy_files:
+        for src_file, target_name in parameters.copy_files:
+            dest_path = distributive_path / target_name
+            dest_path.parent.mkdir(parents=True, exist_ok=True)
+            shutil.copy2(str(src_file), str(dest_path))
 
     # открытие папки в конце сборки
     if parameters.open_folder:
