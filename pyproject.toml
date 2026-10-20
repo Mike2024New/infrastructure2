@@ -1,6 +1,6 @@
 [project]
 name = "infrastructure2"
-version = "0.118.0"
+version = "0.119.0"
 description = "🧩 Монорепозиторий переиспользуемых утилит для Python-проектов. Централизованное управление, модульная установка."
 readme = "README.md"
 requires-python = ">=3.12"
@@ -18,6 +18,7 @@ dependencies = [
     "infrastructure-process-utils",
     "infrastructure-streaming",
     "infrastructure-progress",
+    "infrastructure_log_utils",
     "pytest>=9.1.1",
 ]
 
@@ -63,6 +64,9 @@ workspace = true
 workspace = true
 
 [tool.uv.sources.infrastructure-tk-ui]
+workspace = true
+
+[tool.uv.sources.infrastructure-log-utils]
 workspace = true
 
 [tool.pytest.ini_options]

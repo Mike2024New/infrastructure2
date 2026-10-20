@@ -43,6 +43,7 @@
 10. [process-utils](packages/infrastructure_process_utils/README.md) - вспомогательные утилиты по управлению процессами.
 11. [streaming](packages/infrastructure_streaming/README.md) - набор стриминговых клиентов
 12. [tk_ui](packages/infrastructure_tk_ui/README.md) - набор виджетов для быстрого создания ui интефейсов
+13. [log-utils](packages/infrastructure_log_utils/README.md) - набор утилит и оберток для логирования
 
 ---
 
