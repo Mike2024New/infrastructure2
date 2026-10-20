@@ -58,6 +58,10 @@ class Logger:
     def exception(self, msg: str, *args, **kwargs):
         self._ensure_logger().exception(msg, *args, **kwargs)
 
+    def opt(self, *args, **kwargs) -> loguru.Logger:
+        """Прокси для logger.opt (возвращает логгер для цепочки вызовов)"""
+        return self._ensure_logger().opt(*args, **kwargs)
+
     def _ensure_logger(self) -> loguru.Logger:
         """Вспомогательный метод для проверки, что логгер инициализирован"""
         if self.logger is None:
