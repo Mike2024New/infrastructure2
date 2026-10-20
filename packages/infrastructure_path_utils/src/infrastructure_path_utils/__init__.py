@@ -7,6 +7,8 @@ from infrastructure_path_utils.find_interpreter import find_interpreter_by_root_
 from infrastructure_path_utils.extact_zip import extract_zip_func
 from infrastructure_path_utils.extract_tar import extract_tar_func
 from infrastructure_path_utils.create_zip import create_zip_func
+from infrastructure_path_utils.check_zip_integrity import check_zip_integrity
+from infrastructure_path_utils.check_tar_gz_integrity import check_tar_gz_integrity
 
 __all__ = [
     'get_root_dir_path', 'get_parent_by_marker',
@@ -15,6 +17,7 @@ __all__ = [
     'create_symlink',
     'FlatJsonManager',  # плоский json менеджер для структур вида { key : val }
     'find_interpreter_by_root_dir',
-    'extract_zip_func', 'extract_tar_func',
-    'create_zip_func',
+    'extract_zip_func', 'extract_tar_func',  # извлечение архивов
+    'create_zip_func',  # создание архивов
+    'check_zip_integrity', 'check_tar_gz_integrity',  # проверка архивов
 ]
