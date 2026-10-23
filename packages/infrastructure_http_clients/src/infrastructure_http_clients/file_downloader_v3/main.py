@@ -42,6 +42,7 @@ async def downolad_many_files(
     async with aiohttp.ClientSession(timeout=timeout) as session:
         r = 0
         while dwn_tasks:
+            print(f'\nКРУГ: {r}\n')
             results = await asyncio.gather(
                 *[download_with_limit(dwn, session_in=session) for dwn in dwn_tasks], return_exceptions=True
             )
@@ -72,7 +73,6 @@ async def downolad_many_files(
                 # если известен размер файла проверить, докачался ли он, если нет, то повторить
                 if feedback_dict[task.label]['total'] != 0:
                     if feedback_dict[task.label]['progress'] == 100:
-                        print('вышел через 100%')
                         dwn_tasks.pop(i)
                 # если размер файла не известен, то выход, так как тут полную загрузку не отследить
                 # иначе будет ситуация когда модели будут перекачиваться
@@ -82,6 +82,10 @@ async def downolad_many_files(
             # небольшая задержка перед уходом на 2 круг
             await asyncio.sleep(retries_timeout)
             r += 1
+
+        # если осталась хоть одна не решенная задача
+        if dwn_tasks:
+            raise RuntimeError(f'Не всё удалось загрузить в заданные retries')
 
 
 async def main():
