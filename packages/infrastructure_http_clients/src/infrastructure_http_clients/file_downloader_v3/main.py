@@ -13,6 +13,7 @@ async def downolad_many_files(
         root_dir: Path, dwn_tasks: list[DownloadTask], event: asyncio.Event, feedback_dict: dict,
         limit_tasks: int = 2, retries: int = 4, retries_timeout: float = 3,
         retries_callback: Callable[[int], None] | None = None,
+        error_callback: Callable[[str], None] | None = None,
 ) -> None:
     """
     :param root_dir:  корневая директория проекта
@@ -23,6 +24,7 @@ async def downolad_many_files(
     :param retries: количество попыток переподключения (если соединение разорвано или ошибки сети -> работает только для тех ситуаций когда размер файла получен от сервера, например через заголовок)
     :param retries_timeout: временной интервал между попытками переподключения (сек)
     :param retries_callback: в случае новой попытки подключения и загрузки отработает эта функция
+    :param error_callback: если при загрузке возникла какая либо ошибка, то отработает этот коллбэк передав в него текст ошибки
     """
     # ограниченная по скорости закачка, так как много закачек сразу блокируют каналы
     semaphore = asyncio.Semaphore(limit_tasks)
@@ -55,22 +57,25 @@ async def downolad_many_files(
                 break
 
             err = False
+            text_err = ''
             remaining_tasks = []  # новый список для тех, кто не докачался
 
             for i, (task, result) in enumerate(zip(dwn_tasks, results)):
                 if isinstance(result, DownloadErr.Break):
-                    print(f'✔ {task.label} отменено')
+                    text_err = f'✔ {task.label} отменено'
                 elif isinstance(result, DownloadErr.TimeoutError):
                     err = True
-                    print(f'❌ {task.label}: истёк таймаут загрузки')
+                    text_err = f'❌ {task.label}: истёк таймаут загрузки'
                 elif isinstance(result, DownloadErr.StatusError):
                     err = True
-                    print(f'❌ {task.label}: ошибка сервера')
+                    text_err = f'❌ {task.label}: ошибка сервера'
                 elif isinstance(result, Exception):
                     err = True
-                    print(f'❌ {task.label}: {result}')
+                    text_err = f'❌ {task.label}: {result}'
 
                 if err:
+                    if error_callback is not None:
+                        error_callback(text_err)  # пробросить сообщение об ошибке наверх (для логирования например)
                     remaining_tasks.append(task)  # Если при загрузке какая либо ошибка оставить на следующий круг
                     continue
 
@@ -86,7 +91,8 @@ async def downolad_many_files(
             # задержка перед уходом на 2 круг
             await asyncio.sleep(retries_timeout)
             r += 1
-            retries_callback(r)  # новая попытка подключения
+            if dwn_tasks:
+                retries_callback(r)  # новая попытка подключения
 
         # если осталась хоть одна не решенная задача
         if dwn_tasks:
