@@ -9,6 +9,7 @@ from infrastructure_http_clients.adapters import adpater_download_from_hf
 from infrastructure_http_clients.utils import ServerProbe
 from infrastructure_http_clients.file_downloader import file_downloader, Download, DownloadFileType
 from infrastructure_http_clients.file_downloader_v2 import downolad_many_files, DownloadTask, observer
+from infrastructure_http_clients import file_downloader_v3
 
 __all__ = [
     'Downloader',  # загрузчик
@@ -17,4 +18,5 @@ __all__ = [
     # обновленный универсальный асинхронный загрузчик
     'file_downloader', 'Download', 'DownloadFileType',
     'downolad_many_files', 'DownloadTask', 'observer',  # новый загрузчик
+    'file_downloader_v3',  # новый загрузчик, добивается загрузки, не сдается при падении
 ]

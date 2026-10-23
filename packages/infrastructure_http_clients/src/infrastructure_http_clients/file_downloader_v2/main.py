@@ -11,6 +11,15 @@ async def downolad_many_files(
         root_dir: Path, dwn_tasks: list[DownloadTask], event: asyncio.Event, feedback_dict: dict[str, float],
         limit_tasks: int = 2,
 ):
+    """
+
+    :param root_dir:  корневая директория проекта
+    :param dwn_tasks: задача на загрузку
+    :param event: событие выхода (срочная остановка загрузок)
+    :param feedback_dict: обратная связь, хранит в себе прогресс загружаемых файлоы
+    :param limit_tasks: максимум загрузок за 1 заход
+    :return:
+    """
     # ограниченная по скорости закачка, так как много закачек сразу блокируют каналы
     semaphore = asyncio.Semaphore(limit_tasks)
 

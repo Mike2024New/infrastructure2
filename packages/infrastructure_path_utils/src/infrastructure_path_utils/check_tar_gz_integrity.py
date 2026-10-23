@@ -23,5 +23,5 @@ def check_tar_gz_integrity(path_archive):
 if __name__ == '__main__':
     check_tar_gz_integrity(
         path_archive=Path(
-            r'S:\_projects\python\srv_standart\srv_installer\temp\utils\python\cpython-3.12.14+20260825-x86_64-pc-windows-msvc-install_only.tar.gz'),
+            r"C:\Users\projects\Downloads\win_x86_64\temp\utils\python\cpython-3.12.14+20260825-x86_64-pc-windows-msvc-install_only.tar.gz"),
     )
