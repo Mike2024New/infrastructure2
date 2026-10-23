@@ -31,7 +31,11 @@ async def download_file(
     # если это повторный запрос размеры кешированы в feedback_dict
     # тогда не нужно стучаться на сервер для получения заголовка
     if feedback_dict[label]['total'] == 0:
-        total_size = await get_total_size(session, url=url, timeout=60.0)
+        if label == 'srv_stt.zip':
+            print(f'@@@ УБРАТЬ! это временно @@@@@')
+            total_size = 55296
+        else:
+            total_size = await get_total_size(session, url=url, timeout=60.0)
     else:
         total_size = feedback_dict[label]['total']
 

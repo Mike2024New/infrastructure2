@@ -1,5 +1,5 @@
+import os
 from typing import Callable
-
 import aiohttp, asyncio
 from pathlib import Path
 from aiohttp import ClientTimeout
@@ -7,6 +7,7 @@ from aiohttp import ClientTimeout
 from infrastructure_http_clients.file_downloader_v3.downloader import download_file
 from infrastructure_http_clients.file_downloader_v3.exceptions import DownloadErr
 from infrastructure_http_clients.file_downloader_v3.shemas import DownloadTask
+from infrastructure_http_clients.file_downloader_v3.funcs import check_zip_integrity, check_tar_gz_integrity
 
 
 async def downolad_many_files(
@@ -79,16 +80,38 @@ async def downolad_many_files(
                     remaining_tasks.append(task)  # Если при загрузке какая либо ошибка оставить на следующий круг
                     continue
 
+                # проверка целостности файлов (пока только zip, tar.gz)
+                file_path = root_dir / task.relative_path_file
+                corrupted = False
+                if file_path.suffix == '.zip':
+                    try:
+                        # проверить целостность zip
+                        check_zip_integrity(path_archive=file_path)
+                    except Exception as err:  # noqa
+                        # архив битый удалить его (это временная мера, но для битых архивов git пока это палочка выручалочка)
+                        corrupted = True
+                if file_path.name.endswith('.tar.gz'):
+                    try:
+                        # проверить целостность zip
+                        check_tar_gz_integrity(path_archive=file_path)
+                    except Exception as err:  # noqa
+                        # архив битый удалить его (это временная мера, но для битых архивов git пока это палочка выручалочка)
+                        corrupted = True
+
+                if corrupted:
+                    if error_callback is not None:
+                        error_callback(f'Архив {task.label}, битый, качаю заново.')
+                    if file_path.exists():
+                        os.remove(file_path)
+                    feedback_dict[task.label]['progress'] = 0
+                    feedback_dict[task.label]['downolad'] = 0
+                    remaining_tasks.append(task)
+                    continue
+
+                # проверка что файл докачан (для тех кто не проходит проверку на целостность)
                 if feedback_dict[task.label]['total'] != 0:
                     if feedback_dict[task.label]['progress'] == 100:
-                        # ============================================
-                        # отслеживание ситуации когда файл не докачался, но при этом прогресс 100%
-                        total = feedback_dict[task.label]['total']
-                        downolad = feedback_dict[task.label]['downolad']
-                        if (total - downolad) > 1024 * 1024:
-                            feedback_dict[task.label]['progress'] = 0
-                            remaining_tasks.append(task)  # не докачано, оставить на 2 круг
-                        # ============================================
+                        pass
                     else:
                         remaining_tasks.append(task)  # не докачано, оставить на 2 круг
                 else:
@@ -98,7 +121,8 @@ async def downolad_many_files(
             # задержка перед уходом на 2 круг
             await asyncio.sleep(retries_timeout)
             r += 1
-            if dwn_tasks:
+
+            if dwn_tasks and retries_callback is not None:
                 retries_callback(r)  # новая попытка подключения
 
         # если осталась хоть одна не решенная задача
