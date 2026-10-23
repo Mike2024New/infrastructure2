@@ -57,7 +57,7 @@ async def downolad_many_files(
                 event.set()  # на всякий случай, если выход был через retries
                 break
 
-            err = False
+            error_task = False
             text_err = ''
             remaining_tasks = []  # новый список для тех, кто не докачался
 
@@ -65,16 +65,16 @@ async def downolad_many_files(
                 if isinstance(result, DownloadErr.Break):
                     text_err = f'✔ {task.label} отменено'
                 elif isinstance(result, DownloadErr.TimeoutError):
-                    err = True
+                    error_task = True
                     text_err = f'❌ {task.label}: истёк таймаут загрузки'
                 elif isinstance(result, DownloadErr.StatusError):
-                    err = True
+                    error_task = True
                     text_err = f'❌ {task.label}: ошибка сервера'
                 elif isinstance(result, Exception):
-                    err = True
+                    error_task = True
                     text_err = f'❌ {task.label}: {result}'
 
-                if err:
+                if error_task:
                     if error_callback is not None:
                         error_callback(text_err)  # пробросить сообщение об ошибке наверх (для логирования например)
                     remaining_tasks.append(task)  # Если при загрузке какая либо ошибка оставить на следующий круг
