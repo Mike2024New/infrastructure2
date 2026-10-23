@@ -49,8 +49,12 @@ async def download_file(
     if local_size and total_size > local_size:
         headers = {'Range': f'bytes={local_size}-'}
 
+    headers[
+        'User-Agent'
+    ] = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
+
     download_bytes = 0
-    async with session.get(url, headers=headers) as response:
+    async with session.get(url, headers=headers, max_field_size=16384) as response:
         if response.status == 206:
             mode = 'ab'
             download_bytes = local_size
