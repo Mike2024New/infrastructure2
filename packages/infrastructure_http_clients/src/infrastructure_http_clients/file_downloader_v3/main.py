@@ -13,7 +13,7 @@ from infrastructure_http_clients.file_downloader_v3.funcs import check_zip_integ
 async def downolad_many_files(
         root_dir: Path, dwn_tasks: list[DownloadTask], event: asyncio.Event, feedback_dict: dict,
         limit_tasks: int = 2, retries: int = 4, retries_timeout: float = 3,
-        retries_callback: Callable[[int], None] | None = None,
+        retries_callback: Callable[[str], None] | None = None,
         error_callback: Callable[[str], None] | None = None,
 ) -> None:
     """
@@ -24,7 +24,7 @@ async def downolad_many_files(
     :param limit_tasks: максимум загрузок за 1 заход
     :param retries: количество попыток переподключения (если соединение разорвано или ошибки сети -> работает только для тех ситуаций когда размер файла получен от сервера, например через заголовок)
     :param retries_timeout: временной интервал между попытками переподключения (сек)
-    :param retries_callback: в случае новой попытки подключения и загрузки отработает эта функция
+    :param retries_callback: в случае новой попытки подключения и загрузки отработает эта функция, в арумент прочитается сообщение msg
     :param error_callback: если при загрузке возникла какая либо ошибка, то отработает этот коллбэк передав в него текст ошибки
     """
     # ограниченная по скорости закачка, так как много закачек сразу блокируют каналы
@@ -123,7 +123,9 @@ async def downolad_many_files(
             r += 1
 
             if dwn_tasks and retries_callback is not None:
-                retries_callback(r)  # новая попытка подключения
+                dwn_tasks = [d.label for d in dwn_tasks]
+                msg = f'Новый круг {r}/{retries} загрузки, догрузка элементов:{dwn_tasks}'
+                retries_callback(msg)  # новая попытка подключения
 
         # если осталась хоть одна не решенная задача
         if dwn_tasks:
