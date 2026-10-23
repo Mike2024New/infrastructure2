@@ -81,7 +81,14 @@ async def downolad_many_files(
 
                 if feedback_dict[task.label]['total'] != 0:
                     if feedback_dict[task.label]['progress'] == 100:
-                        pass  # скачано, не добавлять в remaining
+                        # ============================================
+                        # отслеживание ситуации когда файл не докачался, но при этом прогресс 100%
+                        total = feedback_dict[task.label]['total']
+                        downolad = feedback_dict[task.label]['downolad']
+                        if (total - downolad) > 1024 * 1024:
+                            feedback_dict[task.label]['progress'] = 0
+                            remaining_tasks.append(task)  # не докачано, оставить на 2 круг
+                        # ============================================
                     else:
                         remaining_tasks.append(task)  # не докачано, оставить на 2 круг
                 else:
