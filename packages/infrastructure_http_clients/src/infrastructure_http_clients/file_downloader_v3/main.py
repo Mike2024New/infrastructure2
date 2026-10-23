@@ -1,3 +1,5 @@
+from typing import Callable
+
 import aiohttp, asyncio
 from pathlib import Path
 from aiohttp import ClientTimeout
@@ -9,7 +11,8 @@ from infrastructure_http_clients.file_downloader_v3.shemas import DownloadTask
 
 async def downolad_many_files(
         root_dir: Path, dwn_tasks: list[DownloadTask], event: asyncio.Event, feedback_dict: dict,
-        limit_tasks: int = 2, retries: int = 4, retries_timeout: float = 3
+        limit_tasks: int = 2, retries: int = 4, retries_timeout: float = 3,
+        retries_callback: Callable[[int], None] | None = None,
 ) -> None:
     """
     :param root_dir:  корневая директория проекта
@@ -19,6 +22,7 @@ async def downolad_many_files(
     :param limit_tasks: максимум загрузок за 1 заход
     :param retries: количество попыток переподключения (если соединение разорвано или ошибки сети -> работает только для тех ситуаций когда размер файла получен от сервера, например через заголовок)
     :param retries_timeout: временной интервал между попытками переподключения (сек)
+    :param retries_callback: в случае новой попытки подключения и загрузки отработает эта функция
     """
     # ограниченная по скорости закачка, так как много закачек сразу блокируют каналы
     semaphore = asyncio.Semaphore(limit_tasks)
@@ -42,7 +46,6 @@ async def downolad_many_files(
     async with aiohttp.ClientSession(timeout=timeout) as session:
         r = 0
         while dwn_tasks:
-            print(f'\nКРУГ: {r}\n')
             results = await asyncio.gather(
                 *[download_with_limit(dwn, session_in=session) for dwn in dwn_tasks], return_exceptions=True
             )
@@ -52,8 +55,9 @@ async def downolad_many_files(
                 break
 
             err = False
+            remaining_tasks = []  # новый список для тех, кто не докачался
+
             for i, (task, result) in enumerate(zip(dwn_tasks, results)):
-                print(feedback_dict[task.label])
                 if isinstance(result, DownloadErr.Break):
                     print(f'✔ {task.label} отменено')
                 elif isinstance(result, DownloadErr.TimeoutError):
@@ -66,22 +70,23 @@ async def downolad_many_files(
                     err = True
                     print(f'❌ {task.label}: {result}')
 
-                # ошибка, уход на второй круг
                 if err:
+                    remaining_tasks.append(task)  # Если при загрузке какая либо ошибка оставить на следующий круг
                     continue
 
-                # если известен размер файла проверить, докачался ли он, если нет, то повторить
                 if feedback_dict[task.label]['total'] != 0:
                     if feedback_dict[task.label]['progress'] == 100:
-                        dwn_tasks.pop(i)
-                # если размер файла не известен, то выход, так как тут полную загрузку не отследить
-                # иначе будет ситуация когда модели будут перекачиваться
+                        pass  # скачано, не добавлять в remaining
+                    else:
+                        remaining_tasks.append(task)  # не докачано, оставить на 2 круг
                 else:
-                    dwn_tasks.pop(i)
+                    pass  # размер неизвестен, считать скачанным
 
-            # небольшая задержка перед уходом на 2 круг
+            dwn_tasks = remaining_tasks  # заменить список на новый
+            # задержка перед уходом на 2 круг
             await asyncio.sleep(retries_timeout)
             r += 1
+            retries_callback(r)  # новая попытка подключения
 
         # если осталась хоть одна не решенная задача
         if dwn_tasks:
