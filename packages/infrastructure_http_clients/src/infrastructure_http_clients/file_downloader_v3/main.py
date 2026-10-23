@@ -123,8 +123,7 @@ async def downolad_many_files(
             r += 1
 
             if dwn_tasks and retries_callback is not None:
-                dwn_tasks = [d.label for d in dwn_tasks]
-                msg = f'Новый круг {r}/{retries} загрузки, догрузка элементов:{dwn_tasks}'
+                msg = f'Новый круг {r}/{retries} загрузки, догрузка элементов:{[d.label for d in dwn_tasks]}'
                 retries_callback(msg)  # новая попытка подключения
 
         # если осталась хоть одна не решенная задача
