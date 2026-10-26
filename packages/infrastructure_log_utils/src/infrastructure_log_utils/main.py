@@ -15,6 +15,8 @@ class Logger:
             compression: str = 'zip',
             fmt: str = '{time:YYYY-MM-DD HH:mm:ss} | {level} | {extra[request_id]} | {message}'
     ):
+        # добавить по умолчанию чтобы логер в библиотеках не ругался на отсутствие request_id
+        logger.configure(extra={"request_id": "N/A"})
         self.logger: loguru.Logger | None = None
         self._log_path = log_path
         self._rotation = rotation
