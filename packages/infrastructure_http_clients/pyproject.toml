@@ -10,4 +10,5 @@ dependencies = [
     "rich==15.0.0",
     "truststore==0.10.4",
     "loguru==0.7.3",
+    "huggingface-hub==2.3.0",
 ]
