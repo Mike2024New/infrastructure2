@@ -6,6 +6,7 @@ class DownloadTask(BaseModel):
     url: str = Field(description='целевой url')
     relative_path_file: str = Field(description='Относительный путь, например resources/models')
     label: str = Field(description='название файла, отображаемое при загрузке (шильдик)')
+    sha256: str | None = Field(default=None, description='проверка файла sha256, защита от подмен и битых файлов.')
 
     def get_downloader(self, root_dir) -> dict:
         """
@@ -16,6 +17,7 @@ class DownloadTask(BaseModel):
             "url": self.url,
             "file_path": root_dir / self.relative_path_file,
             "label": self.label,
+            'sha256': self.sha256,
         }
 
 

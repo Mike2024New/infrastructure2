@@ -1,24 +1,31 @@
 import asyncio, aiohttp
+import hashlib
+import os
+from loguru import logger
 from aiohttp import ClientTimeout
 from pathlib import Path
 from infrastructure_http_clients.file_downloader_v3.downloader_get_total_size import get_total_size
 from infrastructure_http_clients.file_downloader_v3.exceptions import DownloadErr
+from infrastructure_http_clients.file_downloader_v3.sha256_checker import Sha256Checker
 
 
 async def download_file(
         session: aiohttp.ClientSession, url: str, file_path: Path, label: str, event: asyncio.Event,
-        feedback_dict: dict
+        feedback_dict: dict, special_dict: dict, sha256: str | None,
 ) -> bool:
     """
     Загрузка одного конкретного файла, с несколькими попытками на чанк в случае ошибки
+    :param special_dict:
     :param session:
     :param feedback_dict: словарь очередей
     :param label: название загружаемого файла, может не совпадать с file_path это просто шильдик для словаря в queue_feedback
     :param url: ссылка на файл, например: https://huggingface.co/Systran/faster-whisper-tiny/resolve/main/model.bin
     :param file_path: путь к файлу, для url, например (для url из примера выше): target_dir / model.bin
     :param event: событие остановки (event.is_set())
+    :param sha256: проверочный хеш.
     :return: bool
     """
+
     lock = asyncio.Lock()
     tolerance = 1024 * 1024  # 1mb
     chunk_timeout = 2  # время на ожидание одного чанка
@@ -34,6 +41,17 @@ async def download_file(
         total_size = await get_total_size(session, url=url, timeout=60.0)
     else:
         total_size = feedback_dict[label]['total']
+
+    # Первичная проверка sha256, чтобы не качать зря большие файлы (если уже продолжение загрузки)
+    # сохраняет ключ в feedback_dict для того, чтобы не запрашивать sha_api при реконнектах (rate_limitting сервера), при докачках
+    if sha256 is not None:
+        if not special_dict.get('sha256', False):
+            logger.info(f'Первичная проверка sha256 -> {url}')
+            sha_check = Sha256Checker.hf_check_sha256(url=url, sha256=sha256)
+            if not sha_check:
+                raise DownloadErr.Sha256MismatchPrimary(f'sha256 не совпадает для url {url}')
+            else:
+                special_dict['sha256'] = True  # чтобы дергать api сервера
 
     headers = {}
 
@@ -102,7 +120,26 @@ async def download_file(
         feedback_dict[label]['progress'] = 100.0
         feedback_dict[label]['total'] = total_size
         feedback_dict[label]['downolad'] = file_path.stat().st_size
+        if sha256:
+            sha256_from_down_file = calculate_sha256(file_path=file_path)
+            # вторичная (основная) проверка sha256, каждый файл который скачивается в конце проходит проверку безопасности
+            # если хеши не сойдутся удалить файл и вызвать исключение
+            logger.info(f'Вторичная проверка sha256 -> {url}')
+            if sha256_from_down_file != sha256:
+                os.remove('\\\\?\\' + str(file_path))
+                raise DownloadErr.Sha256MismatchSecondary(
+                    f'Вторичная проверка sha256 не сходятся, файл удален. Для url {url}'
+                )
     return True
+
+
+def calculate_sha256(file_path: Path) -> str:
+    sha256_hash = hashlib.sha256()
+    # Читаем файл кусками по 64 КБ
+    with open(file_path, "rb") as f:
+        for byte_block in iter(lambda: f.read(65536), b""):
+            sha256_hash.update(byte_block)
+    return sha256_hash.hexdigest()
 
 
 async def example():
@@ -120,17 +157,20 @@ async def example():
     )
 
     event = asyncio.Event()
-    feedback_dict = {'tiny/model.bin': 0}
+    feedback_dict = {"gemma-3-1b-it-Q4_K_M.gguf": {'progress': 0.0, 'total': 0, 'downolad': 0}}
+    special_dict = {'sha256': False}  # служебный словарь для внутренних процессов загрузчика
     # задание на загрузку файла
     async with aiohttp.ClientSession(timeout=timeout) as session:
         download_task = asyncio.create_task(
             download_file(
                 session=session,
-                url='https://huggingface.co/Systran/faster-whisper-tiny/resolve/main/model.bin',
-                file_path=Path() / 'models' / 'tiny' / 'model.bin',
-                label='tiny/model.bin',  # название которое будет отображаться в прогресс баре
+                url='https://huggingface.co/lmstudio-community/gemma-3-1b-it-GGUF/resolve/main/gemma-3-1b-it-Q4_K_M.gguf',
+                file_path=Path() / 'resources' / 'models' / 'gemma-3-1b-it-Q4_K_M.gguf',
+                label='gemma-3-1b-it-Q4_K_M.gguf',  # название которое будет отображаться в прогресс баре
                 event=event,  # событие завершения загрузки (механизм отмены)
                 feedback_dict=feedback_dict,
+                special_dict=special_dict,
+                sha256='8d78d9d059a7605c401c105e169e0b08e9f0edc603ceb842f1c4bbb834296d17',
             ),
         )
 

@@ -65,7 +65,14 @@ class Logger:
     def _ensure_logger(self) -> loguru.Logger:
         """Вспомогательный метод для проверки, что логгер инициализирован"""
         if self.logger is None:
-            raise RuntimeError("Логгер не инициализирован! Вызовите set_logger(request_id) перед использованием.")
+            logger.add(
+                self._log_path,
+                rotation=self._rotation, retention=self._retention,
+                compression=self._compression,
+                format=self._fmt,
+            )
+            self.logger = logger.bind(request_id=None)
+            warnings.warn("Логгер инициализирован без request id.")
         return self.logger
 
     def catch(self, *args, **kwargs):
@@ -88,6 +95,6 @@ if __name__ == '__main__':
             log.exception(f'{err}')  # чтобы была трассировка использ. exception
 
 
-    log.set_logger(request_id='#001')
+    # log.set_logger(request_id='#001')
     x()
-    log.logger.info('test')
+    log.info('test')

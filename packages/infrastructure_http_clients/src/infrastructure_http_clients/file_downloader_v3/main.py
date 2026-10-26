@@ -3,7 +3,7 @@ from typing import Callable
 import aiohttp, asyncio
 from pathlib import Path
 from aiohttp import ClientTimeout
-
+from loguru import logger
 from infrastructure_http_clients.file_downloader_v3.downloader import download_file
 from infrastructure_http_clients.file_downloader_v3.exceptions import DownloadErr
 from infrastructure_http_clients.file_downloader_v3.shemas import DownloadTask
@@ -29,12 +29,14 @@ async def downolad_many_files(
     """
     # ограниченная по скорости закачка, так как много закачек сразу блокируют каналы
     semaphore = asyncio.Semaphore(limit_tasks)
+    special_dict = {'sha256': False}
 
     async def download_with_limit(dwn, session_in):
         async with semaphore:
             return await download_file(
                 event=event,
                 session=session_in,
+                special_dict=special_dict,
                 feedback_dict=feedback_dict,
                 **dwn.get_downloader(root_dir=root_dir)
             )
@@ -69,13 +71,21 @@ async def downolad_many_files(
                     text_err = f'❌ {task.label}: истёк таймаут загрузки'
                 elif isinstance(result, DownloadErr.StatusError):
                     error_task = True
+                    logger.error(f'❌ {task.label}: ошибка сервера')
                     text_err = f'❌ {task.label}: ошибка сервера'
+                elif isinstance(result, DownloadErr.Sha256MismatchPrimary):
+                    # error_task не ставится чтобы не продолжать загрузку
+                    text_err = f'❌ Не пройдена первичная проверка sha256 файл удален: {result}'
+                elif isinstance(result, DownloadErr.Sha256MismatchSecondary):
+                    # error_task не ставится чтобы не продолжать загрузку
+                    text_err = f'❌ Не пройдена вторичная проверка sha256 файл удален: {result}'
                 elif isinstance(result, Exception):
                     error_task = True
                     text_err = f'❌ {task.label}: {result}'
 
                 if error_task:
                     if error_callback is not None:
+                        logger.error(text_err)
                         error_callback(text_err)  # пробросить сообщение об ошибке наверх (для логирования например)
                     remaining_tasks.append(task)  # Если при загрузке какая либо ошибка оставить на следующий круг
                     continue
@@ -100,6 +110,7 @@ async def downolad_many_files(
 
                 if corrupted:
                     if error_callback is not None:
+                        logger.error(f'Архив {task.label}, битый, качаю заново.')
                         error_callback(f'Архив {task.label}, битый, качаю заново.')
                     if file_path.exists():
                         os.remove(file_path)
@@ -114,6 +125,7 @@ async def downolad_many_files(
                         pass
                     else:
                         remaining_tasks.append(task)  # не докачано, оставить на 2 круг
+                        logger.warning(f'{task.label} не докачан, уходит на 2 круг {feedback_dict[task.label]}')
                 else:
                     pass  # размер неизвестен, считать скачанным
 

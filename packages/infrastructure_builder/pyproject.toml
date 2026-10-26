@@ -6,6 +6,6 @@ readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [
     "rich==15.0.0",
-    "pyinstaller>=6.21.0",
-    "infrastructure-path-utils @ git+https://github.com/Mike2024New/infrastructure2.git@main#subdirectory=packages/infrastructure_path_utils",
+    "pyinstaller==6.21.0",
+    "infrastructure-path-utils @ git+https://github.com/Mike2024New/infrastructure2.git@a180eeb75948fb8070a1310d2c003f0e3023fe1d#subdirectory=packages/infrastructure_path_utils",
 ]
