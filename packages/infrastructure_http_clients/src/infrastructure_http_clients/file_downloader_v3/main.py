@@ -7,7 +7,6 @@ from infrastructure_http_clients.file_downloader_v3.downloader import download_f
 from infrastructure_http_clients.file_downloader_v3.exceptions import DownloadErr
 from infrastructure_http_clients.file_downloader_v3.shemas import DownloadTask
 from infrastructure_http_clients.file_downloader_v3.funcs import check_zip_integrity, check_tar_gz_integrity
-from loguru import logger
 
 
 async def downolad_many_files(
@@ -32,7 +31,6 @@ async def downolad_many_files(
     # ограниченная по скорости закачка, так как много закачек сразу блокируют каналы
     semaphore = asyncio.Semaphore(limit_tasks)
     special_dict = {'sha256': False}
-    logger.info(f'Начата загрузка файлов@')
 
     async def download_with_limit(dwn, session_in):
         async with semaphore:

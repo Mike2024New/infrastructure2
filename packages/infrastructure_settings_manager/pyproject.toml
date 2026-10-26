@@ -3,9 +3,9 @@ name = "infrastructure-settings-manager"
 version = "0.3.0"
 description = "⚙️ Менеджеры настроек: работа с .env (pydantic-settings), .json (с автосохранением) и pyproject.toml (чтение/инкремент версии)."
 readme = "README.md"
-requires-python = ">=3.12"
+requires-python = "==3.12.*"
 dependencies = [
-    "pydantic-settings>=2.14.1",
-    "tomli-w>=1.2.0",
-    "infrastructure-path-utils @ git+https://github.com/Mike2024New/infrastructure2.git@main#subdirectory=packages/infrastructure_path_utils",
+    "pydantic-settings==2.14.1",
+    "tomli-w==1.2.0",
+    "infrastructure-path-utils @ git+https://github.com/Mike2024New/infrastructure2.git@42571c4a0f8a041d78f19edda92213b7e7c25593#subdirectory=packages/infrastructure_path_utils",
 ]

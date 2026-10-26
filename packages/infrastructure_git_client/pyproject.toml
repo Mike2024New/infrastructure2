@@ -3,8 +3,8 @@ name = "infrastructure-git-client"
 version = "0.2.0"
 description = "📦 Git-клиент для автоматизации: инициализация, коммиты, пуш, инкремент версии, обновление истории в README. Всё одной командой."
 readme = "README.md"
-requires-python = ">=3.12"
+requires-python = "==3.12.*"
 dependencies = [
-    "infrastructure-settings-manager @ git+https://github.com/Mike2024New/infrastructure2.git@main#subdirectory=packages/infrastructure_settings_manager",
-    "infrastructure-path-utils @ git+https://github.com/Mike2024New/infrastructure2.git@main#subdirectory=packages/infrastructure_path_utils",
+    "infrastructure-settings-manager @ git+https://github.com/Mike2024New/infrastructure2.git@42571c4a0f8a041d78f19edda92213b7e7c25593#subdirectory=packages/infrastructure_settings_manager",
+    "infrastructure-path-utils @ git+https://github.com/Mike2024New/infrastructure2.git@42571c4a0f8a041d78f19edda92213b7e7c25593#subdirectory=packages/infrastructure_path_utils",
 ]

@@ -3,13 +3,13 @@ name = "infrastructure-cli-utils"
 version = "0.13.0"
 description = "💻 Шаблоны для быстрого развертывания CLI интерфейса."
 readme = "README.md"
-requires-python = ">=3.12"
+requires-python = "==3.12.*"
 dependencies = [
-    "requests>=2.34.2",
-    "typer>=0.26.8",
-    "pytest>=9.1.0",
-    "infrastructure-builder @ git+https://github.com/Mike2024New/infrastructure2.git@main#subdirectory=packages/infrastructure_builder",
-    "infrastructure-path-utils @ git+https://github.com/Mike2024New/infrastructure2.git@main#subdirectory=packages/infrastructure_path_utils",
-    "infrastructure-git-client @ git+https://github.com/Mike2024New/infrastructure2.git@main#subdirectory=packages/infrastructure_git_client",
-    "infrastructure-other @ git+https://github.com/Mike2024New/infrastructure2.git@main#subdirectory=packages/infrastructure_other",
+    "requests==2.34.2",
+    "typer==0.26.8",
+    "pytest==9.1.1",
+    "infrastructure-builder @ git+https://github.com/Mike2024New/infrastructure2.git@42571c4a0f8a041d78f19edda92213b7e7c25593#subdirectory=packages/infrastructure_builder",
+    "infrastructure-path-utils @ git+https://github.com/Mike2024New/infrastructure2.git@42571c4a0f8a041d78f19edda92213b7e7c25593#subdirectory=packages/infrastructure_path_utils",
+    "infrastructure-git-client @ git+https://github.com/Mike2024New/infrastructure2.git@42571c4a0f8a041d78f19edda92213b7e7c25593#subdirectory=packages/infrastructure_git_client",
+    "infrastructure-other @ git+https://github.com/Mike2024New/infrastructure2.git@42571c4a0f8a041d78f19edda92213b7e7c25593#subdirectory=packages/infrastructure_other",
 ]

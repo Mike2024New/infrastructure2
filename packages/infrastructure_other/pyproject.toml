@@ -3,8 +3,8 @@ name = "infrastructure-other"
 version = "0.11.0"
 description = "📗 Утилиты не вошедшие ни в одну из категорий (например подавитель логов c++ библиотек)."
 readme = "README.md"
-requires-python = ">=3.12"
+requires-python = "==3.12.*"
 dependencies = [
-    "rich>=15.0.0",
-    "requests>=2.34.2",
+    "rich==15.0.0",
+    "requests==2.34.2",
 ]
