@@ -11,6 +11,7 @@ from infrastructure_http_clients.file_downloader_v3.sha256_checker import Sha256
 async def download_file(
         session: aiohttp.ClientSession, url: str, file_path: Path, label: str, event: asyncio.Event,
         feedback_dict: dict, special_dict: dict, sha256: str | None,
+        primary_check_sha256: bool = True,
 ) -> bool:
     """
     Загрузка одного конкретного файла, с несколькими попытками на чанк в случае ошибки
@@ -22,6 +23,7 @@ async def download_file(
     :param file_path: путь к файлу, для url, например (для url из примера выше): target_dir / model.bin
     :param event: событие остановки (event.is_set())
     :param sha256: проверочный хеш.
+    :param primary_check_sha256: первичная проверка sha256.
     :return: bool
     """
 
@@ -43,7 +45,7 @@ async def download_file(
 
     # Первичная проверка sha256, чтобы не качать зря большие файлы (если уже продолжение загрузки)
     # сохраняет ключ в feedback_dict для того, чтобы не запрашивать sha_api при реконнектах (rate_limitting сервера), при докачках
-    if sha256 is not None:
+    if primary_check_sha256 and sha256 is not None:
         if not special_dict.get('sha256', False):
             sha_check = Sha256Checker.hf_check_sha256(url=url, sha256=sha256)
             if not sha_check:

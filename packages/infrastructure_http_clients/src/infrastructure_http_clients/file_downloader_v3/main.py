@@ -7,6 +7,7 @@ from infrastructure_http_clients.file_downloader_v3.downloader import download_f
 from infrastructure_http_clients.file_downloader_v3.exceptions import DownloadErr
 from infrastructure_http_clients.file_downloader_v3.shemas import DownloadTask
 from infrastructure_http_clients.file_downloader_v3.funcs import check_zip_integrity, check_tar_gz_integrity
+from loguru import logger
 
 
 async def downolad_many_files(
@@ -14,6 +15,7 @@ async def downolad_many_files(
         limit_tasks: int = 2, retries: int = 4, retries_timeout: float = 3,
         retries_callback: Callable[[str], None] | None = None,
         error_callback: Callable[[str], None] | None = None,
+        primary_check_sha256: bool = True,
 ) -> None:
     """
     :param root_dir:  корневая директория проекта
@@ -25,10 +27,12 @@ async def downolad_many_files(
     :param retries_timeout: временной интервал между попытками переподключения (сек)
     :param retries_callback: в случае новой попытки подключения и загрузки отработает эта функция, в арумент прочитается сообщение msg
     :param error_callback: если при загрузке возникла какая либо ошибка, то отработает этот коллбэк передав в него текст ошибки
+    :param primary_check_sha256: первичная проверка sha256.
     """
     # ограниченная по скорости закачка, так как много закачек сразу блокируют каналы
     semaphore = asyncio.Semaphore(limit_tasks)
     special_dict = {'sha256': False}
+    logger.info(f'Начата загрузка файлов@')
 
     async def download_with_limit(dwn, session_in):
         async with semaphore:
@@ -37,6 +41,7 @@ async def downolad_many_files(
                 session=session_in,
                 special_dict=special_dict,
                 feedback_dict=feedback_dict,
+                primary_check_sha256=primary_check_sha256,
                 **dwn.get_downloader(root_dir=root_dir)
             )
 
@@ -162,11 +167,15 @@ async def main():
     }  # для наблюдения за прогрессом обязательно передать feedback_dict, который будет показывать прогресс
 
     download_task = asyncio.create_task(
-        downolad_many_files(root_dir=Path.cwd(), dwn_tasks=dwn_tasks, event=event, feedback_dict=feedback_dict)
+        downolad_many_files(
+            root_dir=Path.cwd(),
+            dwn_tasks=dwn_tasks,
+            event=event,
+            primary_check_sha256=True,
+            feedback_dict=feedback_dict,
+        )
     )
     observer_task = asyncio.create_task(observer(feedback_dict_in=feedback_dict, event_in=event))
-    await asyncio.sleep(4)
-    event.set()
     await download_task
     event.set()
     await observer_task

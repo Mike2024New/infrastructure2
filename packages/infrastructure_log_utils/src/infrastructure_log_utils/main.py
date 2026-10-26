@@ -21,6 +21,7 @@ class Logger:
         self._retention = retention
         self._compression = compression
         self._fmt = fmt
+        self._handler_added = False
 
     def set_logger(self, request_id: str):
         """Общий логгер на всё приложение с фиксированным request_id для отслеживания всёй цепочки"""
@@ -65,13 +66,15 @@ class Logger:
     def _ensure_logger(self) -> loguru.Logger:
         """Вспомогательный метод для проверки, что логгер инициализирован"""
         if self.logger is None:
-            logger.add(
-                self._log_path,
-                rotation=self._rotation, retention=self._retention,
-                compression=self._compression,
-                format=self._fmt,
-            )
-            self.logger = logger.bind(request_id=None)
+            if not self._handler_added:
+                logger.add(
+                    self._log_path,
+                    rotation=self._rotation, retention=self._retention,
+                    compression=self._compression,
+                    format=self._fmt,
+                )
+                self._handler_added = True
+            self.logger = logger.bind(request_id='N/A')
             warnings.warn("Логгер инициализирован без request id.")
         return self.logger
 
