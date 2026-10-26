@@ -1,6 +1,6 @@
 [project]
 name = "infrastructure-http-clients"
-version = "0.35.0"
+version = "0.36.0"
 description = "🔗 Http помощник. Загрузка файлов. Шаблоны для загрузки моделей с hugging_face. Опрос сервера (для разработки)."
 readme = "README.md"
 requires-python = ">=3.12"
@@ -9,6 +9,5 @@ dependencies = [
     "aiohttp==3.14.3",
     "rich==15.0.0",
     "truststore==0.10.4",
-    "loguru==0.7.3",
     "huggingface-hub==2.3.0",
 ]

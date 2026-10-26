@@ -1,7 +1,6 @@
 import asyncio, aiohttp
 import hashlib
 import os
-from loguru import logger
 from aiohttp import ClientTimeout
 from pathlib import Path
 from infrastructure_http_clients.file_downloader_v3.downloader_get_total_size import get_total_size
@@ -46,7 +45,6 @@ async def download_file(
     # сохраняет ключ в feedback_dict для того, чтобы не запрашивать sha_api при реконнектах (rate_limitting сервера), при докачках
     if sha256 is not None:
         if not special_dict.get('sha256', False):
-            logger.info(f'Первичная проверка sha256 -> {url}')
             sha_check = Sha256Checker.hf_check_sha256(url=url, sha256=sha256)
             if not sha_check:
                 raise DownloadErr.Sha256MismatchPrimary(f'sha256 не совпадает для url {url}')
@@ -124,7 +122,6 @@ async def download_file(
             sha256_from_down_file = calculate_sha256(file_path=file_path)
             # вторичная (основная) проверка sha256, каждый файл который скачивается в конце проходит проверку безопасности
             # если хеши не сойдутся удалить файл и вызвать исключение
-            logger.info(f'Вторичная проверка sha256 -> {url}')
             if sha256_from_down_file != sha256:
                 os.remove('\\\\?\\' + str(file_path))
                 raise DownloadErr.Sha256MismatchSecondary(
@@ -138,7 +135,7 @@ def calculate_sha256(file_path: Path) -> str:
     # Читаем файл кусками по 64 КБ
     with open(file_path, "rb") as f:
         for byte_block in iter(lambda: f.read(65536), b""):
-            sha256_hash.update(byte_block)
+            sha256_hash.update(byte_block)  # noqa
     return sha256_hash.hexdigest()
 
 

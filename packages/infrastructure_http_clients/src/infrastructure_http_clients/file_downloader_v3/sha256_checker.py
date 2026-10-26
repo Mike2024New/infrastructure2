@@ -1,6 +1,5 @@
 from huggingface_hub import utils as hf_utils
 from huggingface_hub import HfApi
-from loguru import logger
 
 
 class Sha256Checker:
@@ -25,8 +24,7 @@ class Sha256Checker:
         """
         try:
             res = hf_utils.parse_hf_uri(url)
-        except Exception as err:
-            logger.error(f'Ошибка парсинга hf url : {err}')  # переделать на логирование
+        except Exception:  # noqa
             return None
 
         try:
@@ -35,16 +33,14 @@ class Sha256Checker:
                 repo_id=res.id,
                 files_metadata=True,  # указать что данные получаются именно о файле
             )
-        except hf_utils.HfHubHTTPError as err:
+        except hf_utils.HfHubHTTPError:
             # Ошибка сети, 404 или 401. Логируем и пропускаем проверку.
-            logger.error(f"Не удалось получить метаданные для {url}: {err}")
             return None
 
         for sibling in info.siblings:
             if sibling.rfilename == res.path_in_repo:
                 if sibling.lfs:
                     return sha256 == sibling.lfs.sha256
-        logger.error(f'Не удалось получить sha256 для {url}')  # переделать на логирование
         return None
 
 
